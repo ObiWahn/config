@@ -1,0 +1,170 @@
+# terminfo and termcap for nice 256 color terminal
+# allow bold colors - necessary for some reason
+attrcolor b ".I"
+# tell screen how to set colors. AB = background, AF=foreground
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+
+# Disable alternate screen switching, makes Screen use the scrollback of
+# the terminal (broken when using multiple windows : mixup)
+# termcapinfo xterm*|rxvt* ti@:te@
+
+#enable alternate screen support
+altscreen on
+# erase background with current bg color
+defbce on
+
+# no annoying audible bell, please
+# turning vbell on makes vim unuseable
+# use inputrc to make sure nothing is beeping or flashing!!!
+vbell off
+
+#default shell title
+shelltitle "$ |bash"
+
+#set lines for scrollback
+defscrollback 10000
+
+#use utf-8
+defutf8 on
+
+#enable non blocking mode for output
+nonblock on
+
+#allow multiuser and add root to acl
+multiuser on
+acladd "root"
+
+# detach on hangup
+autodetach on
+
+# don't display the copyright page
+startup_message off
+
+# emulate .logout message
+pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
+
+# Yet another hack: #TODO: wtf where is that from
+# Prepend/append register [/] to the paste if ^a^] is pressed.
+# This lets me have autoindent mode in vi.
+register [ "\034:se noai\015a"
+register ] "\033:se ai\015a"
+bind ^] paste [.]
+
+#Obi's bindings
+bind x remove
+
+# key bindings  switch with Function keys.
+bind 1 select 0
+bind 2 select 1
+bind 3 select 2
+bind 4 select 3
+bind 5 select 4
+bind 6 select 5
+bind 7 select 6
+bind 8 select 7
+bind 9 select 8
+bind 9 select 9
+
+# CTRL+a w: Window commands
+bind ^w windowlist -g				# ctrl+a ctrl+w -> window list group mode
+bind w eval 'command -c REGION' 'echo "select Window"' 
+bind -c REGION ? help -c REGION
+bind -c REGION s split				# ctrl+a w s
+bind -c REGION ^v split -v
+bind -c REGION v split -v
+bind -c REGION o only
+bind -c REGION c remove
+bind -c REGION h focus left
+bind -c REGION j focus down
+bind -c REGION k focus up
+bind -c REGION l focus right
+bind -c REGION r command -c RESIZE
+
+## http://www.rubyist.net/~rubikitch/computer/screen/#label:11
+bind -c REGION r eval 'command -c RESIZE' 'echo "Resize window"' 
+bind -c RESIZE ? help -c RESIZE
+#bind -c RESIZE ^] command #TODO - what is this good for? produces: ^a
+bind -c RESIZE l eval 'resize +1' 'command -c RESIZE'     # ctrl+a r j
+bind -c RESIZE h eval 'resize -1' 'command -c RESIZE'
+bind -c RESIZE j eval 'resize -v -1' 'command -c RESIZE'
+bind -c RESIZE k eval 'resize -v +1' 'command -c RESIZE'
+
+#LAYOUT
+# http://lists.gnu.org/archive/html/screen-users/2007-02/msg00009.html
+bind l eval 'echo "layout commands - ? for help"' 'command -c LAYOUT'
+bind -c LAYOUT s layout show
+bind -c LAYOUT t layout title
+
+bind -c LAYOUT ? help -c LAYOUT
+bind -c LAYOUT \' layout select
+bind -c LAYOUT - layout select -
+bind -c LAYOUT 0 layout select 0
+bind -c LAYOUT 1 layout select 1
+bind -c LAYOUT 2 layout select 2
+bind -c LAYOUT 3 layout select 3
+bind -c LAYOUT 4 layout select 4
+bind -c LAYOUT 5 layout select 5
+bind -c LAYOUT 6 layout select 6
+bind -c LAYOUT 7 layout select 7
+bind -c LAYOUT 8 layout select 8
+bind -c LAYOUT 9 layout select 9
+
+# http://lists.gnu.org/archive/html/screen-users/2007-02/msg00000.html
+bind -c LAYOUT c layout new		# careful : haven't found a killing command
+# bind -c LAYOUT ^C layout new	# careful : haven't found a killing command
+bind -c LAYOUT n layout prev	# sic : this appears misbound inside screen
+# bind -c LAYOUT ^N layout prev	# sic : this appears misbound inside screen
+bind -c LAYOUT p layout next	# sic : this appears misbound inside screen
+# bind -c LAYOUT ^P layout next	# sic : this appears misbound inside screen
+bind -c LAYOUT w layout show
+# bind -c LAYOUT l layout show	# better key ?
+bind -c LAYOUT N layout number
+bind -c LAYOUT A eval 'layout title' colon "stuff 'layout title '"  # use `^Am' (`lastmsg') to see current title
+
+bind g eval colon "stuff 'screen -t  //group^B^B^B^B^B^B^B^B'" #easy creation of groups pace cursor after -t
+bind G group
+
+#bind ^G
+#bind g
+
+hardstatus on
+hardstatus alwayslastline
+
+#HOSTNAME - must be exportet in bashrc
+#backup#current#  hardstatus string "%{= k}%{+b G}[ ${HOSTNAME} ][%= %{=kw}%?%-Lw%?%{Y}(%n*%f%t%?(%u)%?)%{G}%?%+Lw%? %= ][ %{B}%Y-%m-%d %{G}%c ]"
+#hardstatus string "%{= kk}%{+ g}%{G}[${HOSTNAME}]%{-} %= %{=kw}%?%-Lw%?%{Y}(%n*%f%t%?(%u)%?)%{-}%?%+Lw%? %=  %{G}[%Y-%m-%d %c]%{-}"
+#hardstatus string "%{= dk}%{+ g}%{G}[${HOSTNAME}]%{-} %= %{=kw}%?%-Lw%?%{Y}(%n*%f%t%?(%u)%?)%{-}%?%+Lw%? %=  %{G}[%Y-%m-%d %c]%{-}"
+
+#hardstatus string "%{= dk}%{+ g}%{g}[${USER}@${HOSTNAME}]%{-} %= %{=kw}%?%-Lw%?%{Y}(%n*%f%t%?(%u)%?)%{-}%?%+Lw%? %=  %{g}[%Y-%m-%d %c]%{-}"
+hardstatus string "%{= dk}%{+ g}%{g}[${HOSTNAME}]%{-} %= %{=kw}%?%-Lw%?%{Y}(%n*%f%t%?(%u)%?)%{-}%?%+Lw%? %=  %{g}[%Y-%m-%d %c]%{-}"
+
+
+
+### binds
+bind K kill
+bind q quit
+
+#shelltitle ']> |-:'
+#needs
+#11:18 < ski_>   alias precmd        'echo -n "^[k^[\"'
+#11:18 < ski_> (though it seems i can replace the literal `^['s with `\e's)
+#11:18 < ski_> i assume bash, or whatever shell you use, has something similar
+
+#hardstatus alwaysfirstline
+#hardstatus string '%{= mK}%-Lw%{= KW}%50>%n%f* %t%{= mK}%+Lw%< %{= kG}%-=%D %d %M %Y %c:%s%{-}'
+#hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
+#hardstatus string '%{= kw}[ %{= kb}%H%{= kw} ][ %= %{= kw}%?%-Lw%?%{= kr}(%{= kW}%n*%f %t%?(%u)%?%{= kr})%{= kw}%?%+Lw%?%?%= %{w} ][ %{r}%l%{w} ]%{w}[%{r} %d/%m/%y %C %A %{w}]%{w}'
+
+
+# key bindings  switch with Function keys.
+#bindkey -k k1 select 0
+#bindkey -k k2 select 1
+#bindkey -k k3 select 2
+#bindkey -k k4 select 3
+#bindkey -k k5 select 4
+#bindkey -k k6 select 5
+#bindkey -k k7 select 6
+#bindkey -k k8 select 7
+#bindkey -k k9 select 8
+
+#hardstatus string '%{= kw}[ %{= kb}%H%{= kw} ][%= %{= kw}%?%-Lw%?%{= kW}%n*%f %t%?%?%{= kw}%?%+Lw%?%?%= ][ %{r}%l%{w} ]%{w}[%{r} %d/%m/%y %C %A %{w}]%{w}'
