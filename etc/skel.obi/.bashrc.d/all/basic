@@ -1,0 +1,199 @@
+#!/bin/bash
+
+alias vim='vim -p'
+vimcpp(){
+   local cmd=( 'vim' '-p')
+    while IFS=' ' read first reast; do
+        IFS=':' read -u 3 name line pos _  3<<<"$first"
+        cmd+=("$name" "+$line")
+    done <<< "$@"
+    echo "${cmd[@]}"
+    "${cmd[@]}"
+}
+
+
+alias cd..='cd ..'
+alias rsync-pro='rsync -avh --partial --progress'
+
+## turn monitor off
+alias soff='xset dpms force off'
+
+### ssh
+alias ssh-show-fpr='ssh-keygen -lv -f'
+ssh-show-fpr-host(){
+    for key in /etc/ssh/ssh_host_*_key.pub; do
+        ssh-keygen -lv -f $key
+    done
+}
+
+###############################################################################
+###############################################################################
+### FileSystem and Dir Size Commands
+
+## Enable color support of ls and also add handy aliases
+case $(uname) in
+    Linux)
+        eval `dircolors -b`
+        alias ls='ls --color=always -h'
+    ;;
+    Darwin)
+        alias ls='ls -G -h'
+    ;;
+esac
+
+alias la='ls -a'
+alias ll='ls -l'
+alias l='ls -s'
+alias lla='ls -s -all'
+alias less='less -R'
+alias dir='ls --color=auto --format=vertical'
+alias vdir='ls --color=auto --format=long'
+
+du(){ /usr/bin/du -h $@ ; }
+df(){ /bin/df -h $@ ; }
+
+alias di='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,ntfs'
+alias dia='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,fuse,tmpfs'
+alias dio='/usr/bin/di -h -s -n -t -f MfpbstO -I ext3,ext4,fuseblk,ntfs'
+
+###############################################################################
+###############################################################################
+#admin stuff
+alias path='echo -e ${PATH//:/\\n}'
+alias systemd-show-runlevel='systemctl list-units --type=target'
+# log colorizer
+alias ccze='ccze -A'
+
+ping_fragmentation_mtu_ip(){
+    # TODO write loop to test for good result
+    ping -s "$1" -M do "$2"
+}
+
+bugs(){
+    # list bugs of given gravity
+    local state=""
+    if [[ -z $1 ]]; then
+        state="$1"
+    else
+        state="serious"
+    fi
+    local pkg_list="$(dpkg -l | tail -n+5 | awk '{print $2}')"
+    echo "pkg-list ### $pkg_list ###"
+    apt-listbugs list -s "$state" $pkg_list | less
+}
+
+###############################################################################
+###############################################################################
+# grep
+
+alias grep='grep --colour'
+alias bgrep='grep --binary-files=text'
+alias egrep='egrep --colour --binary-files=text'
+
+gps(){
+    # grep for process
+    ps aux | \
+    grep -v "egrep --colour --binary-files=text" | \
+    egrep --colour --binary-files=text "$@"
+}
+
+pscg(){ ps xawf -eo pid,user,cgroup,args; }
+gpscg(){
+    pscg | \
+    grep -v "egrep --colour --binary-files=text" | \
+    egrep --colour --binary-files=text "$@"
+}
+
+###############################################################################
+###############################################################################
+# type
+
+type-vim(){
+    file="$(type "$1" | awk '{print $3}')"
+    test -e "$file" && vim "$file"
+}
+
+type-less(){
+    file="$(type "$1" | awk '{print $3}')"
+    test -e "$file" && vim "$file"
+}
+
+type-obi(){
+    res="$(type "$1")"
+    if (($? == 0)); then
+        if [[ "$res" == *aliased* ]]; then
+            grep -R "$1" ~/.bashrc.d/*
+        fi
+    fi
+}
+
+###############################################################################
+###############################################################################
+# screen / tmux
+
+screen(){
+    #list screen sessions of all users
+    if [[ "$1" != "-ls-all" ]]; then
+        /usr/bin/screen "$@"
+    else
+        shopt -s nullglob
+        local screens=(/var/run/screen/S-*/*)
+        shopt -u nullglob
+        if (( ! ${#screens[@]} )); then
+            echo "no screen session found in /var/run/screen"
+        else
+            for s in ${screens[@]#*S-}; do
+                echo "$s"
+            done
+        fi
+    fi
+}
+
+tmux(){
+    if [[ $1 == "-r" ]]; then
+        shift
+        /usr/bin/tmux attach-session "$@"
+    elif [[ $1 == "-ls" ]]; then
+        shift
+        /usr/bin/tmux list-sessions "$@"
+    else
+        /usr/bin/tmux "$@"
+    fi
+}
+
+###############################################################################
+###############################################################################
+#root related
+
+if (( UID == 0 )); then
+    update(){
+        case $1 in
+            d*)
+                apt-get update && apt-get dist-upgrade
+            ;;
+            *)
+                apt-get update && apt-get upgrade
+            ;;
+        esac
+    }
+else
+    alias ifconfig='/sbin/ifconfig'
+    alias poweroff='sudo /sbin/poweroff'
+    alias halt='sudo /sbin/poweroff'
+fi
+
+###############################################################################
+###############################################################################
+# to be used in scripts
+
+__ssh_over_nodes(){
+    # ssh connection over multipe hops
+    local hosts=( "$@" )
+    local hosts_len="${#hosts[@]}"
+    local cmd="ssh ${hosts["$hosts_len"-1]}"
+    for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
+        cmd="ssh -t ${hosts[$i]} $cmd"
+    done
+    $cmd
+}
+

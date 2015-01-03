@@ -1,0 +1,212 @@
+#!/bin/bash
+
+#http://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
+declare BSORT=()
+obi-bubble_sort()
+{
+    # @param [ARGUMENTS]...
+    #
+    # Sort all positional arguments and store them in global array BSORT.
+    # Without arguments sort this array. Return the number of iterations made.
+    #
+    # Bubble sorting lets the heaviest element sink to the bottom.
+    #
+    # @usage
+    #
+    # BSORT=(a c b 'z y' 3 5)
+    # bubble_sort
+    # echo ${BSORT[@]}
+    (($# > 0)) && BSORT=("$@")
+    local j=0 ubound=$((${#BSORT[*]} - 1))
+    while ((ubound > 0))
+    do
+        local i=0
+        while ((i < ubound))
+        do
+            if [ "${BSORT[$i]}" \> "${BSORT[$((i + 1))]}" ]
+            then
+                local t="${BSORT[$i]}"
+                BSORT[$i]="${BSORT[$((i + 1))]}"
+                BSORT[$((i + 1))]="$t"
+            fi
+            ((++i))
+        done
+        ((++j))
+        ((--ubound))
+    done
+    echo $j
+}
+###############################################################################
+###############################################################################
+###############################################################################
+### Formatted Output
+
+echo_padd(){
+    local len="$1"
+    local padd="$2"
+    local args=
+    shift 2
+    ## get aditional arguments
+    while : ; do
+        if [[ $1 == @(-n|-e|-ne) ]]; then
+            args+=$1
+            shift
+        else
+            break
+        fi
+    done
+
+    msg="$@ "
+    #fill with padd
+    while (( ${#msg} < len-1 )); do
+        msg+="$padd"
+    done
+    msg+=" "
+    #print
+    echo $args "$msg"
+}
+
+echo_long(){
+    # breaks a long line in single lines that fit width
+    # if the first argument is -f the second is inseted
+    # in the beginning of the lines
+
+    local fill=""
+    if [[ "$1" == "-f" ]]; then
+        fill="$2"
+        shift 2
+    fi
+    # break output at width
+    local line_out="$fill"
+    local width=80
+    for item in $@; do
+        if (( (${#line_out} + ${#item})  > width )); then
+            echo -ne "${line_out}\n"
+            line_out="${fill}"
+        else
+            line_out+="$item "
+        fi
+    done
+    echo -ne "${line_out}\n"
+}
+
+obi-section(){
+    local fill_symbol="-"
+    local title="$@"
+
+    local width=80
+    local fill=$(( width-${#title} ))
+    local rest=$(( fill % 2 ))
+    fill=$(( fill / 2))
+    #printf "$fill_symbol%.0s" {1..$(( fill + rem ))}  - fuck no
+    for (( n=1 ; n <= fill ; n++ )); do echo -n "$fill_symbol" ; done
+    tput bold
+    echo -n "$title"
+    tput sgr0
+    for (( n=1 ; n <= (fill+rest) ; n++ )); do echo -n "$fill_symbol" ; done
+    echo
+}
+
+obi-write_x_n_times(){
+    local ts=$(printf "%${2}s")
+    printf %s ${ts// /$1}
+}
+
+obi-del_word(){
+    cnt=0
+    max=${#1}
+    while (( cnt < max )); do
+        echo -n -e "\b \b"
+        (( cnt++ ))
+    done
+}
+
+obi-exec_cmd(){
+    echo "==============================================================================="
+    echo "running: $@"
+    echo "-------------------------------------------------------------------------------"
+    $@
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+### DEBUG
+
+export OBI_DEBUG=5
+export OBI_DEBUG_ACTION='sleep'
+export OBI_ERROR_ACTION='ask'
+obi-debug(){
+    #
+    # This function displays debug information
+    # when the debug level set via command line
+    # is greater or equal the level passed to
+    # the function
+    #
+    # In:
+    # $1 - level
+    # $2 - message
+    #
+    ${conf[debug]} || return
+    local action=""
+    local level="$1"
+    shift
+    if [[ "$1" == @(ask|sleep) ]]; then
+        action="$1"
+        shift
+    fi
+    msg="$@"
+
+    if (( level <= $OBI_DEBUG )); then
+        while read -r debug_line <&13; do
+            printf '%q\n' "debug $level: $debug_line" 1>&2
+        done 13<<< "$msg"
+    fi
+    [[ "$OBI_DEBUG_ACTION" == "sleep" ]] && sleep 5
+    [[ "$OBI_DEBUG_ACTION" == "ask" ]]   && read -p "press key to continue" -n 1
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+### ERROR
+
+err(){ echo; echo -n "$error "; echo "$@"; }
+
+#fatal error
+ferr(){ err "$@"; exit 1; }
+
+#non fatal error
+nerr(){
+err "$@"
+case ${conf[on_error]} in
+    exit) exit 1 ;;
+    ask)  local rv="$(ask_yn "The Program encountered an error - do you want to continue?")"; [[ "$rv" == "no" ]] && exit 1 ;;
+esac
+}
+
+# ask to continue on error
+ask_yn(){
+while true; do
+    read -p "$@ (y/n) " yn
+    case "$yn" in
+        [Yy]*) echo "yes"; break ;;
+        [Nn]*) echo "no" ; break ;;
+        *) echo "Please answer with yes or no." 1>&2 ;;
+    esac
+done
+}
+
+ask_to_cont(){
+    [[ $(ask_yn "$1") == "yes" ]] || exit 1
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
+## system info
+obi-udev-by-path(){
+    udevadm info -a -p  $(udevadm info -q path -n $@)
+}

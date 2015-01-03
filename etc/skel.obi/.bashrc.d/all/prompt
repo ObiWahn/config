@@ -1,0 +1,89 @@
+#!/bin/bash
+## Fancy Promt
+# set colors
+_i=0
+for _c in _black _red _green _yellow _blue _magenta _cyan _white; do
+  printf -v "$_c" %s "$(tput setaf "$_i")"
+  ((_i++))
+done
+
+unset _i _c
+_bold=$(tput bold)
+_reset=$(tput sgr0)
+
+# colors for exit status
+_ret_cols=("$_bold$_red" "$_bold$_green")
+
+## set user and host color
+_user_color="$_green"
+_host_color="$_green"
+
+## map user/host names to colors
+# the following file contains functions that do the mapping
+source_file ~/.bashrc.d/host/prompt_colors
+
+# get battery status
+_get_batt(){
+    local batt
+    if batt=$(acpi -b 2>/dev/null); then
+        echo "[$(awk -F ',[[:blank:]]*' '{print $2}' <<<"$batt")] "
+    fi
+}
+
+# shot git status
+GIT_PS1_SHOWDIRTYSTATE="yes"
+GIT_PS1_SHOWSTASHSTATE="yes"
+GIT_PS1_SHOWUNTRACKEDFILES="yes"
+GIT_PS1_SHOWUPSTREAM="auto"
+
+_get_git_PROMPT(){
+    _git_PROMPT=$(__git_ps1 "git: %s")
+    if test -z "$_git_PROMPT"; then
+        unset _git_PROMPT
+    fi
+}
+
+source_file /opt/subversion-prompt/subversion-prompt || source_file ~/.bin/subversion-prompt
+
+_get_svn_PROMPT(){
+    [[ -e .nosvn ]] && return
+    _svn_PROMPT=$(__svn_stat)
+    if test -z "$_svn_PROMPT"; then
+        unset _svn_PROMPT
+    else
+    _svn_PROMPT="svn: $_svn_PROMPT"
+    fi
+}
+
+##promt = user@host + :path + git + svn + prompt (with status color)
+prompt=(
+    '\[$_user_color\]\u@\[$_reset\]\[$_host_color\]\h\[$_reset\]'
+    '\[$_user_color\]:\w\[$_reset\]\n'
+    '${debian_chroot+chroot: $debian_chroot}'
+    '${_git_PROMPT+$_git_PROMPT\n}'
+    '${_svn_PROMPT+$_svn_PROMPT\n}'
+    '${TOOLCHAIN_PREFIX+$TOOLCHAIN_PREFIX\n}'
+    '\[${_ret_cols[!$_exit]}\]»\[$_reset\] '
+)
+
+## change for plain terminal
+if [[ $(tty) = /dev/tty* ]]; then
+    ## prompt symbol: use $ instead of »
+    prompt[$((${#prompt[@]}-1))]='\[${_ret_cols[!$_exit]}\]\$\[$_reset\] '
+    ## prefix battery status
+    prompt=( '\[$_bold$_white\]$(_get_batt)\[$_reset\]' "${prompt[@]}" )
+fi
+
+printf -v PS1 %s "${prompt[@]}"
+unset prompt
+
+
+# various system vars
+PROMPT_COMMAND='_exit=$?; history -a'
+if type __git_ps1 &>/dev/null && ((UID != 0)); then
+    PROMPT_COMMAND+='; unset _git_PROMPT; [[ -n "${NOGIT+set}" ]] || _get_git_PROMPT'
+fi
+
+if type __svn_stat &>/dev/null && ((UID != 0)); then
+    PROMPT_COMMAND+='; unset _svn_PROMPT; [[ -n "${NOSVN+set}" ]] || _get_svn_PROMPT'
+fi
