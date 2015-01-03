@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /etc/ssh || exit 1
+
+name="hostkey@$HOSTNAME"
+
+ssh-keygen -t rsa   -b 4096 -C "rsa-$name"   -f ssh_host_rsa_key
+ssh-keygen -t dsa   -b 1024 -C "dsa-$name"   -f ssh_host_dsa_key
+ssh-keygen -t ecdsa -b 521  -C "ecdsa-$name" -f ssh_host_ecdsa_key

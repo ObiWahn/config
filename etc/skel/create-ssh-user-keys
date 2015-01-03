@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd ~/.ssh || exit 1
+
+name="$USER@$HOSTNAME"
+
+ssh-keygen -t rsa -b 4096 -C "$name" -f "$name" || exit 1
+
+ln -s "$name"     id_rsa
+ln -s "$name.pub" id_rsa.pub
+

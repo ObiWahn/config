@@ -1,0 +1,47 @@
+#!/bin/sh
+dconf load /org/gnome/terminal/ << HERE
+[legacy]
+dark-theme=true
+menu-accelerator-enabled=false
+schema-version=uint32 3
+
+[legacy/keybindings]
+switch-to-tab-1='disabled'
+switch-to-tab-2='disabled'
+switch-to-tab-3='disabled'
+switch-to-tab-4='disabled'
+switch-to-tab-5='disabled'
+switch-to-tab-6='disabled'
+switch-to-tab-7='disabled'
+switch-to-tab-10='disabled'
+switch-to-tab-8='disabled'
+switch-to-tab-9='disabled'
+full-screen='disabled'
+help='disabled'
+
+[legacy/profiles:/:98a027ab-f626-47e9-94ef-013f9f9e3457]
+foreground-color='rgb(255,253,179)'
+visible-name='Obi Desert 16'
+palette=['rgb(102,102,102)', 'rgb(224,84,106)', 'rgb(60,200,94)', 'rgb(252,191,53)', 'rgb(95,185,225)', 'rgb(176,74,217)', 'rgb(46,153,193)', 'rgb(255,253,179)', 'rgb(91,82,82)', 'rgb(233,21,55)', 'rgb(44,255,44)', 'rgb(255,133,56)', 'rgb(11,118,243)', 'rgb(158,0,222)', 'rgb(13,199,255)', 'rgb(255,255,255)']
+use-system-font=false
+use-theme-colors=false
+font='DejaVu Sans Mono 16'
+bold-color-same-as-fg=false
+bold-color='rgb(255,255,255)'
+background-color='rgb(51,51,51)'
+
+[legacy/profiles:]
+list=['b1dcc9dd-5262-4d8d-a863-c897e6d979b9', '98a027ab-f626-47e9-94ef-013f9f9e3457']
+default='b1dcc9dd-5262-4d8d-a863-c897e6d979b9'
+
+[legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
+foreground-color='rgb(255,253,179)'
+visible-name='Obi Desert 14'
+palette=['rgb(102,102,102)', 'rgb(224,84,106)', 'rgb(60,200,94)', 'rgb(252,191,53)', 'rgb(95,185,225)', 'rgb(176,74,217)', 'rgb(46,153,193)', 'rgb(255,253,179)', 'rgb(91,82,82)', 'rgb(233,21,55)', 'rgb(44,255,44)', 'rgb(255,133,56)', 'rgb(11,118,243)', 'rgb(158,0,222)', 'rgb(13,199,255)', 'rgb(255,255,255)']
+use-system-font=false
+use-theme-colors=false
+font='DejaVu Sans Mono 14'
+bold-color-same-as-fg=false
+bold-color='rgb(255,255,255)'
+background-color='rgb(51,51,51)'
+HERE
