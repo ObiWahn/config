@@ -53,9 +53,32 @@ _o_bubble_sort()
         ((++j))
         ((--ubound))
     done
-    echo $j
+    #echo $j
 }
-export BSORT _o_bubble_sort
+
+_o_sort(){
+    local arr=( "$@" )
+    _o_bubble_sort "${arr[@]}"
+}
+
+_o_sort_echo(){
+    local arr=( "$@" )
+    _o_sort "${arr[@]}"
+    echo ${BSORT[@]}
+}
+
+_o_get_last(){
+    local arr=( "$@" )
+    echo "${arr[${#arr[@]}-1]}"
+}
+
+_o_sort_get_last(){
+    local arr=( "$@" )
+    _o_bubble_sort "${arr[@]}"
+    echo "${BSORT[${#BSORT[@]}-1]}"
+}
+
+export BSORT _o_bubble_sort _o_sort _o_sort_echo _o_get_last _o_sort_get_last
 ### array - end ##################################################}}}
 
 ### formatted output #############################################{{{
