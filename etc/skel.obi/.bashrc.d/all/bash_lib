@@ -124,9 +124,17 @@ _o_section(){
     echo
 }
 
-_o_write_x_n_times(){
-    local ts=$(printf "%${2}s")
-    printf %s ${ts// /$1}
+_o_write_n_x_times(){
+    # how it works
+    # 1 - ts gets as many spaces as $1 is long
+    # 2 - every space is expanded to $2 and and written
+    local ts=$(printf "%${1}s")
+    printf %s ${ts// /$2}
+}
+
+_o_write_n_x_times_newline(){
+    local ts=$(printf "%${1}s")
+    printf '%s\n' ${ts// /$2}
 }
 
 _o_del_word(){
@@ -144,7 +152,7 @@ _o_exec_cmd(){
     echo "-------------------------------------------------------------------------------"
     $@
 }
-export _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_x_n_times
+export _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
 ### formatted output - end #######################################}}}
 
 ### debug ########################################################{{{
