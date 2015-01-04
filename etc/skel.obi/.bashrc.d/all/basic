@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright - 2010 - Jan Christoph Uhde <Jan@UhdeJC.com>
 
 obi-update-home(){
     rsync -rlv /etc/skel/ ~

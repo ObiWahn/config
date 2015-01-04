@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright - 2010 - Jan Christoph Uhde <Jan@UhdeJC.com>
 ## Fancy Promt
 
 if ! [[ $_red ]]; then
