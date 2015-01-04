@@ -1,6 +1,6 @@
 #!/bin/bash
 
-update-home(){
+obi-update-home(){
     rsync -rlv /etc/skel/ ~
 }
 
@@ -31,7 +31,6 @@ ssh-show-fpr-host(){
 }
 
 ###############################################################################
-###############################################################################
 ### FileSystem and Dir Size Commands
 
 ## Enable color support of ls and also add handy aliases
@@ -61,7 +60,6 @@ alias dia='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,fuse,tmpfs'
 alias dio='/usr/bin/di -h -s -n -t -f MfpbstO -I ext3,ext4,fuseblk,ntfs'
 
 ###############################################################################
-###############################################################################
 #admin stuff
 alias path='echo -e ${PATH//:/\\n}'
 alias systemd-show-runlevel='systemctl list-units --type=target'
@@ -73,20 +71,6 @@ ping_fragmentation_mtu_ip(){
     ping -s "$1" -M do "$2"
 }
 
-bugs(){
-    # list bugs of given gravity
-    local state=""
-    if [[ -z $1 ]]; then
-        state="$1"
-    else
-        state="serious"
-    fi
-    local pkg_list="$(dpkg -l | tail -n+5 | awk '{print $2}')"
-    echo "pkg-list ### $pkg_list ###"
-    apt-listbugs list -s "$state" $pkg_list | less
-}
-
-###############################################################################
 ###############################################################################
 # grep
 
@@ -109,7 +93,6 @@ gpscg(){
 }
 
 ###############################################################################
-###############################################################################
 # type
 
 type-vim(){
@@ -131,7 +114,6 @@ type-obi(){
     fi
 }
 
-###############################################################################
 ###############################################################################
 # screen / tmux
 
@@ -166,7 +148,6 @@ tmux(){
 }
 
 ###############################################################################
-###############################################################################
 #root related
 
 if (( UID == 0 )); then
@@ -185,19 +166,3 @@ else
     alias poweroff='sudo /sbin/poweroff'
     alias halt='sudo /sbin/poweroff'
 fi
-
-###############################################################################
-###############################################################################
-# to be used in scripts
-
-__ssh_over_nodes(){
-    # ssh connection over multipe hops
-    local hosts=( "$@" )
-    local hosts_len="${#hosts[@]}"
-    local cmd="ssh ${hosts["$hosts_len"-1]}"
-    for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
-        cmd="ssh -t ${hosts[$i]} $cmd"
-    done
-    $cmd
-}
-

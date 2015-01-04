@@ -1,16 +1,18 @@
 #!/bin/bash
 ## Fancy Promt
-# set colors
-_i=0
-for _c in _black _red _green _yellow _blue _magenta _cyan _white; do
-  printf -v "$_c" %s "$(tput setaf "$_i")"
-  ((_i++))
-done
 
-unset _i _c
-_bold=$(tput bold)
-_reset=$(tput sgr0)
+if ! [[ $_red ]]; then
+    # set colors - could be set in bash_lib
+    _i=0
+    for _c in _black _red _green _yellow _blue _magenta _cyan _white; do
+      printf -v "$_c" %s "$(tput setaf "$_i")"
+      ((_i++))
+    done
 
+    unset _i _c
+    _bold=$(tput bold)
+    _reset=$(tput sgr0)
+fi
 # colors for exit status
 _ret_cols=("$_bold$_red" "$_bold$_green")
 

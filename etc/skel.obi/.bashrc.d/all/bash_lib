@@ -1,8 +1,26 @@
 #!/bin/bash
+# vim:filetype=sh foldmethod=marker foldmarker="{{{,}}}"
+# set -o vi
 
+### colors #######################################################{{{
+# set colors
+_i=0
+for _c in _black _red _green _yellow _blue _magenta _cyan _white; do
+  printf -v "$_c" %s "$(tput setaf "$_i")"
+  ((_i++))
+done
+unset _i _c
+
+_bold=$(tput bold)
+_reset=$(tput sgr0)
+
+export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
+### colors - end #################################################{{{
+
+### array ########################################################{{{
 #http://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 declare BSORT=()
-obi-bubble_sort()
+_o_bubble_sort()
 {
     # @param [ARGUMENTS]...
     #
@@ -36,12 +54,11 @@ obi-bubble_sort()
     done
     echo $j
 }
-###############################################################################
-###############################################################################
-###############################################################################
-### Formatted Output
+export BSORT _o_bubble_sort
+### array - end ##################################################}}}
 
-echo_padd(){
+### formatted output #############################################{{{
+_o_echo_padd(){
     local len="$1"
     local padd="$2"
     local args=
@@ -66,7 +83,7 @@ echo_padd(){
     echo $args "$msg"
 }
 
-echo_long(){
+_o_echo_long(){
     # breaks a long line in single lines that fit width
     # if the first argument is -f the second is inseted
     # in the beginning of the lines
@@ -90,7 +107,7 @@ echo_long(){
     echo -ne "${line_out}\n"
 }
 
-obi-section(){
+_o_section(){
     local fill_symbol="-"
     local title="$@"
 
@@ -107,12 +124,12 @@ obi-section(){
     echo
 }
 
-obi-write_x_n_times(){
+_o_write_x_n_times(){
     local ts=$(printf "%${2}s")
     printf %s ${ts// /$1}
 }
 
-obi-del_word(){
+_o_del_word(){
     cnt=0
     max=${#1}
     while (( cnt < max )); do
@@ -121,22 +138,19 @@ obi-del_word(){
     done
 }
 
-obi-exec_cmd(){
+_o_exec_cmd(){
     echo "==============================================================================="
     echo "running: $@"
     echo "-------------------------------------------------------------------------------"
     $@
 }
+export _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_x_n_times
+### formatted output - end #######################################}}}
 
-###############################################################################
-###############################################################################
-###############################################################################
-### DEBUG
-
+### debug ########################################################{{{
 export OBI_DEBUG=5
 export OBI_DEBUG_ACTION='sleep'
-export OBI_ERROR_ACTION='ask'
-obi-debug(){
+_o_debug(){
     #
     # This function displays debug information
     # when the debug level set via command line
@@ -165,28 +179,27 @@ obi-debug(){
     [[ "$OBI_DEBUG_ACTION" == "sleep" ]] && sleep 5
     [[ "$OBI_DEBUG_ACTION" == "ask" ]]   && read -p "press key to continue" -n 1
 }
+export _o_debug_
+### debug end ####################################################}}}
 
-###############################################################################
-###############################################################################
-###############################################################################
-### ERROR
-
-err(){ echo; echo -n "$error "; echo "$@"; }
+### error ########################################################{{{
+export OBI_ERROR_ACTION='ask'
+_o_err(){ echo; echo -n "${_bold}${_red}Error: "; echo "${_white}$@${_reset}"; }
 
 #fatal error
-ferr(){ err "$@"; exit 1; }
+_o_ferr(){ _o_err "$@"; exit 1; }
 
 #non fatal error
-nerr(){
-err "$@"
-case ${conf[on_error]} in
+_o_nerr(){
+_o_err "$@"
+case $OBI_ERROR_ACTION in
     exit) exit 1 ;;
-    ask)  local rv="$(ask_yn "The Program encountered an error - do you want to continue?")"; [[ "$rv" == "no" ]] && exit 1 ;;
+    ask)  local rv="$(_o_ask_yn "The Program encountered an error - do you want to continue?")"; [[ "$rv" == "no" ]] && exit 1 ;;
 esac
 }
 
 # ask to continue on error
-ask_yn(){
+_o_ask_yn(){
 while true; do
     read -p "$@ (y/n) " yn
     case "$yn" in
@@ -197,16 +210,83 @@ while true; do
 done
 }
 
-ask_to_cont(){
-    [[ $(ask_yn "$1") == "yes" ]] || exit 1
+_o_ask_to_cont(){
+    [[ $(_o_ask_yn "$1") == "yes" ]] || exit 1
 }
 
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
+export -f _o_err _o_nerr _o_ferr _o_ask_yn _o_ask_to_cont
+### error - end ##################################################}}}
 
-## system info
-obi-udev-by-path(){
+### fun ##########################################################{{{
+_o_ssh_over_nodes(){
+    # ssh connection over multipe hops
+    local hosts=( "$@" )
+    local hosts_len="${#hosts[@]}"
+    local cmd="ssh ${hosts["$hosts_len"-1]}"
+    for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
+        cmd="ssh -t ${hosts[$i]} $cmd"
+    done
+    $cmd
+}
+
+_o_countdown()
+{
+    local min=${1:-5}
+    local sec=$((60 * min))
+    local clear_eol=$(tput el)
+
+    echo "countdown from $min:00 min "
+    echo
+
+    while (( sec > 0 )); do
+        min_left=$((sec/60))
+
+        if ((min_left >= 3)); then
+            printf -v padded_sec "%02d" "$((sec%60))"
+            out="$min_left:$padded_sec"
+            unit=" min"
+        else
+            out="$sec"
+            unit=" sec"
+        fi
+
+        tput bold
+        tput setaf 1
+        echo -n "     "
+        echo -n "$out"
+        tput sgr0
+        echo -n "$unit"
+        echo -n " left"
+
+        sleep 1
+        sec=$((sec - 1))
+
+        #write_x_n_times $'\b' $((${#out}+${#unit}))
+        echo -ne "\r$clear_eol"
+    done
+    echo
+}
+export _o_ssh_over_nodes _o_countdown
+### fun - end ####################################################{{{
+
+### system info ##################################################{{{
+_o_udev_by_path(){
     udevadm info -a -p  $(udevadm info -q path -n $@)
 }
+
+_o_bugs(){
+    # TODO - ask for bugs in smaller chunks
+
+    # list bugs of given gravity
+    local state=""
+    if [[ -z $1 ]]; then
+        state="$1"
+    else
+        state="serious"
+    fi
+    local pkg_list="$(dpkg -l | tail -n+5 | awk '{print $2}')"
+    echo "pkg-list ### $pkg_list ###"
+    apt-listbugs list -s "$state" $pkg_list | less
+}
+export _o_udev_by_path _o_bugs
+### system info - end ############################################}}}
