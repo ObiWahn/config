@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rsync -avh --partial --progress /etc/skel/     ./skel/
+rsync -avh --partial --progress /etc/skel.obi/ ./skel.obi/
