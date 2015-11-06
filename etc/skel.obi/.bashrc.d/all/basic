@@ -25,7 +25,7 @@ alias soff='xset dpms force off'
 
 ### ssh
 alias ssh-show-fpr='ssh-keygen -lv -f'
-ssh-show-fpr-host(){
+ssh-show-for-host(){
     for key in /etc/ssh/ssh_host_*_key.pub; do
         ssh-keygen -lv -f $key
     done
@@ -53,8 +53,8 @@ alias less='less -R'
 alias dir='ls --color=auto --format=vertical'
 alias vdir='ls --color=auto --format=long'
 
-du(){ /usr/bin/du -h $@ ; }
-df(){ /bin/df -h $@ ; }
+du(){ /usr/bin/du -h "$@" ; }
+df(){ /bin/df -h "$@" ; }
 
 alias di='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,ntfs'
 alias dia='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,fuse,tmpfs'
@@ -67,9 +67,25 @@ alias systemd-show-runlevel='systemctl list-units --type=target'
 # log colorizer
 alias ccze='ccze -A'
 
-ping_fragmentation_mtu_ip(){
+o_ssl_cert_hash(){
+    local cfile="$1"
+    ln -s "$cfile" "$(openssl x509 -hash -noout -in "$cfile").0"
+}
+
+o_ssl_cert_decode(){
+    local cfile="$1"
+    openssl x509 -in "$cfile" -text -noout
+}
+
+o_ping_fragmentation_mtu_ip(){
     # TODO write loop to test for good result
     ping -s "$1" -M do "$2"
+}
+
+o_process_count(){
+    ps -ef | \
+    perl -a -F'\d+:\d+:\d+ ' -n -e 'print @F[1]' -- | \
+    sort | uniq -c | sort -n
 }
 
 ###############################################################################
@@ -86,8 +102,8 @@ gps(){
     egrep --colour --binary-files=text "$@"
 }
 
-pscg(){ ps xawf -eo pid,user,cgroup,args; }
-gpscg(){
+o_pscg(){ ps xawf -eo pid,user,cgroup,args; }
+o_gpscg(){
     pscg | \
     grep -v "egrep --colour --binary-files=text" | \
     egrep --colour --binary-files=text "$@"
