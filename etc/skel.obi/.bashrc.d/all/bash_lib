@@ -154,13 +154,13 @@ _o_write_n_x_times(){
     # 2 - every space is expanded to $2 and and written
     local ts
     printf -v ts "%${1}s"
-    printf %s ${ts// /$2}
+    printf %s "${ts// /$2}"
 }
 
 _o_write_n_x_times_newline(){
     local ts
     printf -v ts "%${1}s"
-    printf '%s\n' ${ts// /$2}
+    printf '%s\n' "${ts// /$2}"
 }
 
 _o_write_n_x_times_newlines(){
