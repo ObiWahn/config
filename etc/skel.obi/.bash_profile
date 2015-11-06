@@ -78,9 +78,9 @@ add_to_head_of_PATH ~/.bin_safe/wrapper
 add_to_head_of_PATH ~/.bin_safe/sudo
 add_to_head_of_PATH ~/.bin_safe
 
-add_to_tail_of_PATH ~/.cabal/bin
 add_to_tail_of_PATH /usr/opt/scripts
-add_to_tail_of_PATH ~/.node_moudles/.bin
+add_to_tail_of_PATH ~/.node_modules/bin
+add_to_tail_of_PATH ~/.cabal/bin
 
 # add iif user is not root
 #mydir=/opt/e17/bin
