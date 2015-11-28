@@ -9,27 +9,30 @@ export LD_LIBRARY_PATH=""
 
 umask 022
 
-export UNAME="$(uname)"
-
-if [[ $UNAME == "Linux" ]]; then
-    get_own(){
-        stat -c %U "$1"
-    }
-elif [[ $UNAME == "Darwin" ]]; then
-    # for mac
-    get_own(){
-        stat -f %Su "$1"
-    }
-else
-    get_own(){
-        echo "unknown"
-    }
-fi
+case "$(uname)" in
+    Linux)
+        get_own(){ stat -c %U "$1"; };
+    ;;
+    Darwin)
+        get_own(){ stat -f %Su "$1"; };
+    ;;
+    *)
+        get_own(){ echo "unknown"; };
+    ;;
+esac
 
 ## source file
 source_file(){
-    if [[ -f "$1" ]]; then
-        source "$1"
+    local file_name="$1"
+    local exp_owner="$2"
+
+    if [[ -f "$file_name" ]]; then
+        if [[ -z "$exp_owner" ]]; then
+            source "$file_name"
+        else
+            local owner="$(get_own "$file_name")"
+            [[ $exp_owner == $owner ]] && source "$file_name"
+        fi
         return 0
     else
         return 1
@@ -57,10 +60,6 @@ if [ -d ~/.bin ] ; then
     PATH="${PATH}":~/.bin
 fi
 
-#if [ -d /usr/opt/scripts ] ; then
-#    PATH="${PATH}":/usr/opt/scripts
-#fi
-
 add_to_head_of_PATH() {
 	if [[ -d "$1" ]]; then
         owner="$(get_own "$1")"
@@ -82,12 +81,6 @@ add_to_tail_of_PATH /usr/opt/scripts
 add_to_tail_of_PATH ~/.node_modules/bin
 add_to_tail_of_PATH ~/.cabal/bin
 
-# add iif user is not root
-#mydir=/opt/e17/bin
-#if [[ -d $mydir ]] ; then
-#	[[ $USER != root ]] && PATH="${PATH}":$mydir
-#fi
-
 # do the same with MANPATH
 #if [ -d ~/man ]; then
 #    MANPATH=~/man:"${MANPATH}"
@@ -106,20 +99,12 @@ if [ -f $userdirs ]; then
     export XDG_MUSIC_DIR
     export XDG_PICTURES_DIR
     export XDG_VIDEOS_DIR
-
 fi
 
 export PATH
 export LD_LIBRARY_PATH=""
 
 # USER PROFILE - They must be owned by root
-user_profile=~/.bashrc.d/user/profile_common
-if [ -f "$user_profile" ]; then
-    owner="$(get_own "$user_profile")"
-	[[ $owner == "root" ]] && source $user_profile
-fi
-user_profile=~/.bashrc.d/user/profile_$(whoami)
-if [ -f "$user_profile" ]; then
-    owner="$(get_own "$user_profile")"
-	[[ $owner == "root" ]] && source $user_profile
-fi
+source_file ~/.bashrc.d/user/profile_common              root
+source_file ~/.bashrc.d/user/profile_${USER}             root
+source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME} root

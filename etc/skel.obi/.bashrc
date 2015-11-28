@@ -41,16 +41,26 @@ fi
 
 PS1="\u@\H:\w\$ "
 
-## Source Additional Files
-source_file(){
-    if [[ -f "$1" ]]; then
-        source "$1"
-        return 0
-    else
-        return 1
-    fi
-}
-export -f source_file
+#if profile should not be loaded for some reason
+if ! declare -f source_file &>/dev/null; then
+    source_file(){
+        local file_name="$1"
+        local exp_owner="$2"
+
+        if [[ -f "$file_name" ]]; then
+            if [[ -z "$exp_owner" ]]; then
+                source "$file_name"
+            else
+                local owner="$(get_own "$file_name")"
+                [[ $exp_owner == $owner ]] && source "$file_name"
+            fi
+            return 0
+        else
+            return 1
+        fi
+    }
+    export -f source_file
+fi
 
 source_file ~/.bashrc.d/all/prompt
 
