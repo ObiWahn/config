@@ -4,8 +4,30 @@ cd ~/.ssh || exit 1
 
 name="$USER@$HOSTNAME"
 
-ssh-keygen -t rsa -b 4096 -C "$name" -f "$name" || exit 1
+create_key(){
+    local name="$USER@$HOSTNAME"
+    local ktype="$1"
+    local bits="$2"
+    local rounds="$3"
 
-ln -s "$name"     id_rsa
-ln -s "$name.pub" id_rsa.pub
+    local cmd=(
+        'ssh-keygen'
+        '-t' "$ktype"
+        '-b' "$bits"
+        '-C' "$ktype-$name"
+        '-f' "id_${ktype}_${name}"
+    )
 
+    if [[ -n "$rounds" ]]; then
+        cmd+=( '-a' "$rounds" )
+    fi
+
+    echo "${cmd[@]}"
+    "${cmd[@]}"
+
+    ln -s "id_${ktype}_${name}"     "id_${ktype}"
+    ln -s "id_${ktype}_${name}.pub" "id_${ktype}.pub"
+}
+
+create_key rsa     4096
+create_key ed25519 4096 $((1024*1024))
