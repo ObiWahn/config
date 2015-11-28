@@ -27,7 +27,7 @@ alias soff='xset dpms force off'
 alias ssh-show-fpr='ssh-keygen -lv -f'
 ssh-show-for-host(){
     for key in /etc/ssh/ssh_host_*_key.pub; do
-        ssh-keygen -lv -f $key
+        ssh-keygen -lv -f "$key"
     done
 }
 
@@ -152,16 +152,26 @@ screen(){
     fi
 }
 
+tmuxa(){
+    /usr/bin/tmux attach-session -t "$@"
+}
+
 tmux(){
     if [[ $1 == "-r" ]]; then
         shift
         /usr/bin/tmux attach-session "$@"
+    elif [[ $1 == "main" ]]; then
+        tmuxa "$@"
     elif [[ $1 == "-ls" ]]; then
         shift
         /usr/bin/tmux list-sessions "$@"
     else
         /usr/bin/tmux "$@"
     fi
+}
+
+tmain(){
+    /usr/bin/tmux attach-session -t main "$@"
 }
 
 ###############################################################################
