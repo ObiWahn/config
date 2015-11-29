@@ -107,4 +107,4 @@ export LD_LIBRARY_PATH=""
 # USER PROFILE - They must be owned by root
 source_file ~/.bashrc.d/user/profile_common              root
 source_file ~/.bashrc.d/user/profile_${USER}             root
-source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME} root
+source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME%%.*} root

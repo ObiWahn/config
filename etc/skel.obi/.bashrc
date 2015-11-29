@@ -76,21 +76,23 @@ xdisplay(){
 }
 export -f xdisplay
 
+#use short host names
+hostname="${HOSTNAME%%.*}"
 ###ALL USER
 source_file ~/.bashrc.d/all/bash_lib
 source_file ~/.bashrc.d/all/basic
 source_file ~/.bashrc.d/all/history
 
 ###THIS HOST
-source_file ~/.bashrc.d/host/$HOSTNAME
+source_file ~/.bashrc.d/host/$hostname
 
 ###THIS USER
 source_file ~/.bashrc.d/user/private
 source_file ~/.bashrc.d/user/ssh_common
-source_file ~/.bashrc.d/user/ssh_$HOSTNAME
+source_file ~/.bashrc.d/user/ssh_$hostname
 
 source_file ~/.bashrc.d/user/$USER
-source_file ~/.bashrc.d/user/${USER}_$HOSTNAME
+source_file ~/.bashrc.d/user/${USER}_$hostname
 
 
 export PATH="$TMP_PATH"												#define GUARD
