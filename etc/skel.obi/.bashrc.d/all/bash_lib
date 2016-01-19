@@ -326,5 +326,10 @@ _o_bugs(){
     echo "pkg-list ### $pkg_list ###"
     apt-listbugs list -s "$state" $pkg_list | less
 }
-export _o_udev_by_path _o_bugs
+
+
+_o_vulnerable_packages(){
+    debsecan | grep -E "${1:-remote.*high}" | awk '{ print $2 }' | sort -u
+}
+export _o_udev_by_path _o_bugs _o_vulnerable_packages
 ### system info - end ############################################}}}
