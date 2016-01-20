@@ -333,3 +333,15 @@ _o_vulnerable_packages(){
 }
 export _o_udev_by_path _o_bugs _o_vulnerable_packages
 ### system info - end ############################################}}}
+
+### admin ########################################################{{{
+_o_adm_sort_passwd(){
+    if sort -n -t: -k3 < /etc/passwd >/etc/passwd.new; then
+        cp /etc/passwd /etc/passwd.old
+        mv /etc/passwd.new /etc/passwd
+    else
+        echo "sorting of passwd failed"
+    fi
+}
+export _o_adm_sort_passwd
+### admin - end ##################################################}}}
