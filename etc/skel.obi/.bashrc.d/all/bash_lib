@@ -78,7 +78,8 @@ _o_sort_get_last(){
     echo "${BSORT[${#BSORT[@]}-1]}"
 }
 
-export BSORT _o_bubble_sort _o_sort _o_sort_echo _o_get_last _o_sort_get_last
+export BSORT
+export -f _o_bubble_sort _o_sort _o_sort_echo _o_get_last _o_sort_get_last
 ### array - end ##################################################}}}
 
 ### formatted output #############################################{{{
@@ -182,7 +183,7 @@ _o_exec_cmd(){
     echo "-------------------------------------------------------------------------------"
     $@
 }
-export _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
+export -f _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
 ### formatted output - end #######################################}}}
 
 ### debug ########################################################{{{
@@ -304,9 +305,39 @@ _o_countdown()
     done
     echo
 }
-export _o_ssh_over_nodes _o_countdown
+export -f _o_ssh_over_nodes _o_countdown
 ### fun - end ####################################################{{{
 
+### screen #######################################################{{{
+_o_screen_off(){
+    sleep 1; xset dpms force off
+}
+
+_o_screen_presentation_on(){
+    xset s off -dpms
+}
+
+_o_screen_presentation_off(){
+    xset s on +dpms
+}
+
+o_screen_off(){
+    _o_screen_off
+}
+
+o_screen_presentation_on(){
+    _o_screen_presentation_on
+}
+
+o_screen_presentation_off(){
+    _o_screen_presentation_off
+}
+
+export -f _o_screen_off _o_screen_presentation_on _o_screen_presentation_off o_screen_off o_screen_presentation_on o_screen_presentation_off
+### screeb - end #################################################}}}
+
+
+export _o_udev_by_path _o_bugs
 ### system info ##################################################{{{
 _o_udev_by_path(){
     udevadm info -a -p  $(udevadm info -q path -n $@)
@@ -331,6 +362,102 @@ _o_bugs(){
 _o_vulnerable_packages(){
     debsecan | grep -E "${1:-remote.*high}" | awk '{ print $2 }' | sort -u
 }
-export _o_udev_by_path _o_bugs
+export -f _o_udev_by_path _o_bugs _o_vulnerable_packages
 ### system info - end ############################################}}}
 
+### file commands ################################################{{{
+_o_file_parts(){
+    _o__full_path="$(readlink -f "$1")"
+    _o__path="$_o__full_path"
+    _o__dir="${_o__full_path%/*}"
+    _o__name_full="${_o__full_path##*/}"
+    _o__name="${_o__name_full%.*}"
+    _o__name_ext="${_o__name_full##*.}"
+}
+
+_o_wait_for_file_event(){
+    # cmd dir command arg1 arg2
+    # events must be uppper-case
+    if [ -z $2 ]; then
+        echo "usage: watchdir <directory> <command> [arg ...]"
+        return
+    fi
+    local dir="$1"
+    shift
+    while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        echo "### inotifywait exec - start #######################"
+        echo "command: $*"
+        sleep 0.1
+        "$@"
+        echo
+        echo "### inotifywait exec - end #########################"
+    done
+}
+
+_o_wait_for_file_event_bash(){
+    # cmd dir command arg1 arg2
+    # events must be uppper-case
+    if [ -z $2 ]; then
+        echo "usage: watchdir <directory> <command> [arg ...]"
+        return
+    fi
+    local dir="$1"
+    shift
+    while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        echo "### inotifywait exec #########################"
+        echo "command: $@"
+        sleep 0.1
+        bash -c "$*"
+        echo "### inotifywait exec #########################"
+    done
+}
+
+watchdir(){
+    _o_wait_for_file_event "$@"
+}
+
+export -f watchdir _o_wait_for_file_event
+### file commands - end ##########################################{{{
+
+
+_o__page_size_bytes="$(getconf PAGESIZE)"
+_o__page_size_KiB="$((_o__page_size_bytes / 1024))"
+
+_o_get_meminfo_statm(){
+    #most reliable
+    local size="$( awk '{print $1}' < /proc/$1/statm )"
+    local resident="$( awk '{print $2}' < /proc/$1/statm )"
+    local shared="$( awk '{print $3}' < /proc/$1/statm )"
+    echo "VmSize_KiB $((size * _o__page_size_KiB)) VmRss_KiB $((resident * _o__page_size_KiB)) RssFile+RssShmem_KiB $((shared * _o__page_size_KiB))"
+}
+
+_o_get_meminfo_top(){
+    #slow
+    local line="$(top -p $1 -n1 -b | tail -n1 )"
+    local VIRT="$( awk '{print $5}' <<< "$line" )"
+    local RES="$( awk '{print $6}' <<< "$line" )"
+    local SHR="$( awk '{print $7}' <<< "$line" )"
+    echo "VmSize $VIRT VmRss $RES SHR $SHR (no fixed units)"
+}
+
+_o_get_meminfo_ps(){
+    local line="$(ps -p$1 -o rss,vsz | tail -n1)"
+    local RSS="$( awk '{print $1}' <<< "$line" )"
+    local VSZ="$( awk '{print $2}' <<< "$line" )"
+    echo "VmSize_KiB $VSZ VmRss_kB $RSS"
+    # KiB though manpage claims other wise"
+}
+
+
+_o_get_meminfo_stat(){
+    local vsize="$( awk '{print $23}' < /proc/$1/stat )"
+    local rss="$( awk '{print $24}' < /proc/$1/stat )"
+    echo "VmSize_KiB $(( vsize / 1024 )) VmRss_KiB $(( rss * _o__page_size_KiB ))"
+}
+
+_o_get_meminfo_status(){
+	local VmSize="$(grep VmSize /proc/$1/status | awk '{print $2}'  )"
+	local VmRSS="$(grep VmRSS /proc/$1/status | awk '{print $2}'  )"
+	echo "VmSize_KiB $VmSize VmRss_KiB $VmRSS"
+    # claims kB
+}

@@ -11,7 +11,7 @@ umask 022
 
 case "$(uname)" in
     Linux)
-        get_own(){ stat -c %U "$1"; };
+        get_own(){ stat -c %U "$(readlink -f "$1")"; };
     ;;
     Darwin)
         get_own(){ stat -f %Su "$1"; };
@@ -78,8 +78,9 @@ add_to_head_of_PATH ~/.bin_safe/sudo
 add_to_head_of_PATH ~/.bin_safe
 
 add_to_tail_of_PATH /usr/opt/scripts
-add_to_tail_of_PATH ~/.node_modules/bin
+add_to_tail_of_PATH ~/.cargo/bin
 add_to_tail_of_PATH ~/.cabal/bin
+add_to_tail_of_PATH ~/.node_modules/bin
 
 # do the same with MANPATH
 #if [ -d ~/man ]; then

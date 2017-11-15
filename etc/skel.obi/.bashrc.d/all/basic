@@ -5,7 +5,13 @@ obi-update-home(){
     rsync -rlv /etc/skel/ ~
 }
 
-alias vim='vim -p'
+vim(){
+    if [[ -d /usr/share/vim-youcompleteme ]]; then
+        rm -fr ~/.vim/bundle/git-YouCompleteMe
+    fi
+    /usr/bin/vim -p "$@"
+}
+
 vimcpp(){
    local cmd=( 'vim' '-p')
     while IFS=' ' read first reast; do
@@ -16,7 +22,6 @@ vimcpp(){
     "${cmd[@]}"
 }
 
-
 alias cd..='cd ..'
 alias rsync-pro='rsync -avh --partial --progress'
 
@@ -24,6 +29,7 @@ alias rsync-pro='rsync -avh --partial --progress'
 alias soff='xset dpms force off'
 
 ### ssh
+alias ssh_md5='ssh -o FingerprintHash=md5'
 alias ssh-show-fpr='ssh-keygen -lv -f'
 ssh-show-for-host(){
     for key in /etc/ssh/ssh_host_*_key.pub; do
@@ -54,6 +60,7 @@ alias dir='ls --color=auto --format=vertical'
 alias vdir='ls --color=auto --format=long'
 
 du(){ /usr/bin/du -h "$@" ; }
+bigdirs(){ /usr/bin/du -hsx * | sort -rh | head -10; }
 df(){ /bin/df -h "$@" ; }
 
 alias di='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,ntfs'
@@ -73,63 +80,63 @@ o_adm_ssl_cert_hash(){
 }
 
 o_adm_ssl_cert_hash_adv(){
-	#program [-f] /path/to/certfile
-	local openssl=/usr/bin/openssl
-	local certdir=${SSL_CERT_DIR:-/etc/ssl/certs}
+    #program [-f] /path/to/certfile
+    local openssl=/usr/bin/openssl
+    local certdir=${SSL_CERT_DIR:-/etc/ssl/certs}
 
-	# -f as firt args sets overwrite mode
-	if [[ "$1" = "-f" ]]; then
-	   local overwrite=1
-	   shift # remove $1
-	fi
+    # -f as firt args sets overwrite mode
+    if [[ "$1" = "-f" ]]; then
+        local overwrite=1
+        shift # remove $1
+    fi
 
-	if [ ! -f $openssl ]; then
-	  	echo "ERROR: Can't find $openssl. openssl-util installed?" >&2
-	fi
+    if [ ! -f $openssl ]; then
+        echo "ERROR: Can't find $openssl. openssl-util installed?" >&2
+    fi
 
 
-	if [ -f "$1" ]; then
-	  	local certfile=$1
-	  	local certname="$(basename "$certfile")"
+    if [ -f "$1" ]; then
+        local certfile=$1
+        local certname="$(basename "$certfile")"
 
-	  	echo "Certificate $certname"
-	  	echo "  copy to $certdir"
+        echo "Certificate $certname"
+        echo "  copy to $certdir"
 
-		if (( $overwrite == 1 )) && [[ -f "$certdir/$certname" ]]; then
-		    echo >&2
-		    echo "ERROR: certificate $certname exists" >&2
-		    exit 2;
-		fi
+        if (( $overwrite == 1 )) && [[ -f "$certdir/$certname" ]]; then
+            echo >&2
+            echo "ERROR: certificate $certname exists" >&2
+            exit 2;
+        fi
 
-		cp "$1" "$certdir/$certname"
+        cp "$1" "$certdir/$certname"
 
-		# create symbolic link from hash
-		echo -n "  generating hash: "
-		local HASH="$($openssl x509 -hash -noout -in "$certfile")"
-		echo "$HASH"
+        # create symbolic link from hash
+        echo -n "  generating hash: "
+        local HASH="$($openssl x509 -hash -noout -in "$certfile")"
+        echo "$HASH"
 
-		# handle hash collisions
-		suffix=0
-		while (( $overwrite == 1 )) && [ -h "$certdir/$HASH.$suffix" ]; do
-			(( foo++ ))
-		done
+        # handle hash collisions
+        suffix=0
+        while (( $overwrite == 1 )) && [ -h "$certdir/$HASH.$suffix" ]; do
+            (( foo++ ))
+        done
 
-		echo "  linking $HASH.$suffix -> $certname"
+        echo "  linking $HASH.$suffix -> $certname"
 
-		if [[ $overwrite ]]; then
-			ln -sf "$certname" "$certdir/$HASH.$suffix"
-		else
-			ln -s "$certname" "$certdir/$HASH.$suffix"
-		fi
-	else
-		echo >&2
-		echo "ERROR: file does not exist $1" >&2
-		echo >&2
-		echo "This script adds (root) certificates for wget(ssl) to $certdir." >&2
-		echo "SYNTAX: $(basename $0) [Options] [x509-certificate]" >&2
-		echo >&2
-		echo "Option: -f      force overwriting if certificate exists" >&2
-	fi
+        if [[ $overwrite ]]; then
+            ln -sf "$certname" "$certdir/$HASH.$suffix"
+        else
+            ln -s "$certname" "$certdir/$HASH.$suffix"
+        fi
+    else
+        echo >&2
+        echo "ERROR: file does not exist $1" >&2
+        echo >&2
+        echo "This script adds (root) certificates for wget(ssl) to $certdir." >&2
+        echo "SYNTAX: $(basename $0) [Options] [x509-certificate]" >&2
+        echo >&2
+        echo "Option: -f      force overwriting if certificate exists" >&2
+    fi
 }
 
 o_adm_ssl_cert_decode(){

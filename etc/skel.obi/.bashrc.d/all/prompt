@@ -29,7 +29,8 @@ source_file ~/.bashrc.d/host/prompt_colors
 _get_batt(){
     local batt
     if batt=$(acpi -b 2>/dev/null); then
-        echo "[$(awk -F ',[[:blank:]]*' '{print $2}' <<<"$batt")] "
+        ##echo "[$(awk -F ',[[:blank:]]*' '{print $2}' <<<"$batt")] "
+        echo "[$(awk -F ', *' '{print $2}' <<<"$batt")] "
     fi
 }
 
