@@ -59,6 +59,14 @@ _get_svn_PROMPT(){
     fi
 }
 
+_get_go_PROMPT(){
+    if [[ -n "$GOPATH" && $GOPATH != "${HOME}/.go" ]]; then
+        _go_PROMPT="go: $GOPATH"
+    else
+        unset _go_PROMPT
+    fi
+}
+
 ##promt = user@host + :path + git + svn + prompt (with status color)
 prompt=(
     '\[$_user_color\]\u@\[$_reset\]\[$_host_color\]\h\[$_reset\]'
@@ -66,7 +74,9 @@ prompt=(
     '${debian_chroot+chroot: $debian_chroot}'
     '${_git_PROMPT+$_git_PROMPT\n}'
     '${_svn_PROMPT+$_svn_PROMPT\n}'
+    '${_go_PROMPT+$_go_PROMPT\n}'
     '${TOOLCHAIN_PREFIX+$TOOLCHAIN_PREFIX\n}'
+    '${PROMPT_SOMETHING+something: $PROMPT_SOMETHING\n}'
     '\[${_ret_cols[!$_exit]}\]»\[$_reset\] '
 )
 
@@ -90,4 +100,8 @@ fi
 
 if type __svn_stat &>/dev/null && ((UID != 0)); then
     PROMPT_COMMAND+='; unset _svn_PROMPT; [[ -n "${NOSVN+set}" ]] || _get_svn_PROMPT'
+fi
+
+if ((UID != 0)); then
+    PROMPT_COMMAND+='; _get_go_PROMPT'
 fi

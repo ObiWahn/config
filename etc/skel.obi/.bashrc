@@ -81,6 +81,7 @@ hostname="${HOSTNAME%%.*}"
 ###ALL USER
 source_file ~/.bashrc.d/all/bash_lib
 source_file ~/.bashrc.d/all/basic
+source_file ~/.bashrc.d/all/commands
 source_file ~/.bashrc.d/all/history
 
 ###THIS HOST
