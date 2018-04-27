@@ -40,6 +40,8 @@ source_file(){
 }
 export -f source_file
 
+source_file ~/.bashrc.d/all/bash_lib
+
 ## find free xdisplay
 xdisplay(){
     local disp=0
@@ -109,3 +111,5 @@ export LD_LIBRARY_PATH=""
 source_file ~/.bashrc.d/user/profile_common              root
 source_file ~/.bashrc.d/user/profile_${USER}             root
 source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME%%.*} root
+
+export OBI_PROFILE_SOURCED=true

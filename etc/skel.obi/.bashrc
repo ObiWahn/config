@@ -2,6 +2,11 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+if ! $OBI_PROFILE_SOURCED; then
+    echo "profile not sourced"
+    . $HOME/.bash_profile
+fi
+
 export UNAME="$(uname)"
 export HOSTNAME
 
@@ -38,7 +43,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
 PS1="\u@\H:\w\$ "
 
 #if profile should not be loaded for some reason
@@ -64,22 +68,13 @@ fi
 
 source_file ~/.bashrc.d/all/prompt
 
-#stty -ixon -ixoff
-
-## find free xdisplay
-xdisplay(){
-    local disp=0
-    while [ -e "/tmp/.X${disp}-lock" ]; do
-	    disp=$(( $disp + 1 ))
-    done
-    echo $disp
-}
-export -f xdisplay
-
 #use short host names
 hostname="${HOSTNAME%%.*}"
 ###ALL USER
-source_file ~/.bashrc.d/all/bash_lib
+if ! $OBI_BASH_LIB_SOURCED; then
+    echo "something went wrong - sourceing bash lib"
+    source_file ~/.bashrc.d/all/bash_lib
+fi
 source_file ~/.bashrc.d/all/basic
 source_file ~/.bashrc.d/all/commands
 source_file ~/.bashrc.d/all/history

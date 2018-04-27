@@ -1,41 +1,11 @@
 #!/bin/bash
 # Copyright - 2010-2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
 
-obi-update-home(){
-    rsync -rlv /etc/skel/ ~
-}
-
-vim(){
-    #if [[ -d /usr/share/vim-youcompleteme ]]; then
-    #    rm -fr ~/.vim/bundle/git-YouCompleteMe
-    #fi
-    /usr/bin/vim -p "$@"
-}
-
-vimcpp(){
-   local cmd=( 'vim' '-p')
-    while IFS=' ' read first reast; do
-        IFS=':' read -u 3 name line pos _  3<<<"$first"
-        cmd+=("$name" "+$line")
-    done <<< "$@"
-    echo "${cmd[@]}"
-    "${cmd[@]}"
-}
-
 alias cd..='cd ..'
 alias rsync-pro='rsync -avh --partial --progress'
 
-## turn monitor off
-alias soff='xset dpms force off'
-alias screen_off='xset dpms force off'
-
-### ssh
-alias ssh_md5='ssh -o FingerprintHash=md5'
-alias ssh-show-fpr='ssh-keygen -lv -f'
-ssh-show-for-host(){
-    for key in /etc/ssh/ssh_host_*_key.pub; do
-        ssh-keygen -lv -f "$key"
-    done
+vim(){
+    /usr/bin/vim -p "$@"
 }
 
 ###############################################################################
@@ -78,9 +48,9 @@ alias ccze='ccze -A'
 ###############################################################################
 # grep
 
-alias grep='grep --colour'
-alias bgrep='grep --binary-files=text'
-alias egrep='egrep --colour --binary-files=text'
+alias grep='/bin/grep --colour'
+alias bgrep='/bin/grep --binary-files=text'
+alias egrep='/bin/egrep --colour --binary-files=text'
 
 gps(){
     # grep for process
@@ -164,29 +134,23 @@ tmain(){
 ###############################################################################
 #user only
 if (( UID != 0 )); then
-
-
-alias ifconfig='/sbin/ifconfig'
-alias poweroff='sudo /sbin/poweroff'
-alias halt='sudo /sbin/poweroff'
-
-
+    alias ifconfig='/sbin/ifconfig'
+    alias poweroff='sudo /sbin/poweroff'
+    alias halt='sudo /sbin/poweroff'
 fi
+
+
 ###############################################################################
 #root only
 if (( UID == 0 )); then
-
-
-update(){
-    case $1 in
-        d*)
-            apt-get update && apt-get dist-upgrade
-        ;;
-        *)
-            apt-get update && apt-get upgrade
-        ;;
-    esac
-}
-
-
+    update(){
+        case $1 in
+            d*)
+                apt-get update && apt-get dist-upgrade
+            ;;
+            *)
+                apt-get update && apt-get upgrade
+            ;;
+        esac
+    }
 fi
