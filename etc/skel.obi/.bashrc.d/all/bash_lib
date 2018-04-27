@@ -378,7 +378,7 @@ _o_file_parts(){
 _o_wait_for_file_event(){
     # cmd dir command arg1 arg2
     # events must be uppper-case
-    if [ -z $2 ]; then
+    if [ -z "$2" ]; then
         echo "usage: watchdir <directory> <command> [arg ...]"
         return
     fi
@@ -395,14 +395,13 @@ _o_wait_for_file_event(){
 }
 
 _o_wait_for_file_event_bash(){
-    # cmd dir command arg1 arg2
-    # events must be uppper-case
-    if [ -z $2 ]; then
-        echo "usage: watchdir <directory> <command> [arg ...]"
+    if [ -z "$2" ]; then
+        echo "usage: watchdir <directory> 'bash; command'"
         return
     fi
     local dir="$1"
     shift
+    set -m
     while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
         echo "### inotifywait exec #########################"
         echo "command: $@"
@@ -413,10 +412,10 @@ _o_wait_for_file_event_bash(){
 }
 
 watchdir(){
-    _o_wait_for_file_event "$@"
+    _o_wait_for_file_event_bash "$@"
 }
 
-export -f watchdir _o_wait_for_file_event
+export -f watchdir _o_wait_for_file_event _o_wait_for_file_event_bash
 ### file commands - end ##########################################{{{
 
 
