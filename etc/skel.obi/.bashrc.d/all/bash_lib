@@ -199,7 +199,7 @@ _o_exec_cmd(){
 }
 
 _o_say() {
-    echo "${OBI_PREFIX:-"bashlib"}: $1"
+    echo "${OBI_PREFIX:-"bashlib"}: $*"
 }
 
 _o_check_cmd() {
