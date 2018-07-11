@@ -18,7 +18,6 @@ _reset=$(tput sgr0)
 export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
 ### colors - end #################################################{{{
 
-
 ### formatted output #############################################{{{
 _o_echo_padd(){
     local len="$1"
@@ -114,13 +113,8 @@ _o_del_word(){
     done
 }
 
-_o_exec_cmd(){
-    echo "==============================================================================="
-    echo "running: $@"
-    echo "-------------------------------------------------------------------------------"
-    $@
-}
-export -f _o_echo_padd _o_echo_long _o_section _o_exec_cmd _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
+
+export -f _o_echo_padd _o_echo_long _o_section _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
 ### formatted output - end #######################################}}}
 
 ### debug ########################################################{{{
@@ -161,7 +155,9 @@ export _o_debug_
 
 ### error ########################################################{{{
 export OBI_ERROR_ACTION='ask'
-_o_err(){ echo; echo -n "${_bold}${_red}Error: "; echo "${_white}$@${_reset}"; }
+
+_o_say() { echo "${_white}${OBI_PREFIX:-""}$@${_reset}"; }
+_o_err(){ echo; echo -n "${_bold}${_red}Error: "; _o_say "$@"; }
 
 #fatal error
 _o_ferr(){ _o_err "$@"; exit 1; }
@@ -194,6 +190,52 @@ _o_ask_to_cont(){
 export -f _o_err _o_nerr _o_ferr _o_ask_yn _o_ask_to_cont
 ### error - end ##################################################}}}
 
+### execute commands #############################################{{{
+_o_exec_cmd(){
+    echo "==============================================================================="
+    echo "running: $@"
+    echo "-------------------------------------------------------------------------------"
+    "$@"
+}
+
+_o_say() {
+    echo "${OBI_PREFIX:-"bashlib"}: $1"
+}
+
+_o_check_cmd() {
+    command -v "$1" > /dev/null 2>&1
+    return $?
+}
+
+_o_need_cmd() {
+    if ! _o_fcheck_cmd "$1"; then
+        _o_ferr "need '$1' (command not found)"
+    fi
+}
+
+_o_need_ok() {
+    if [ $? != 0 ]; then
+        _o_ferr "$1"
+    fi
+}
+
+_o_assert_nz() {
+    if [ -z "$1" ]; then
+        _o_ferr "assert_nz $2"
+    fi
+}
+
+_o_ensure() {
+    "$@"
+    _o_need_ok "command failed: $*"
+}
+
+_o_ignore() {
+    "$@"
+}
+
+export -f _o_exec_cmd  _o_say _o_check_cmd _o_need_cmd _o_need_ok  _o_assert_nz _o_ensure _o_ignore
+### execute - end ################################################}}}
 
 ### file commands ################################################{{{
 _o_file_parts(){

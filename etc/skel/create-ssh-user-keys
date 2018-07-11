@@ -29,5 +29,5 @@ create_key(){
     ln -s "id_${ktype}_${name}.pub" "id_${ktype}.pub"
 }
 
-create_key rsa     4096
+#create_key rsa     4096
 create_key ed25519 4096 $((1024*1024))
