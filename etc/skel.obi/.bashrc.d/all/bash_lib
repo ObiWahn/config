@@ -199,7 +199,7 @@ _o_exec_cmd(){
 }
 
 _o_say() {
-    echo "${OBI_PREFIX:-"bashlib"}: $*"
+    echo "${OBI_PREFIX:-"bashlib"} $*"
 }
 
 _o_check_cmd() {
@@ -221,7 +221,7 @@ _o_need_ok() {
 
 _o_assert_nz() {
     if [ -z "$1" ]; then
-        _o_ferr "assert_nz $2"
+        _o_ferr "(assert) - $2"
     fi
 }
 
@@ -234,7 +234,12 @@ _o_ignore() {
     "$@"
 }
 
-export -f _o_exec_cmd  _o_say _o_check_cmd _o_need_cmd _o_need_ok  _o_assert_nz _o_ensure _o_ignore
+_o_execute_bash() {
+    bash -c "$*"
+    return $?
+}
+
+export -f _o_exec_cmd  _o_say _o_check_cmd _o_need_cmd _o_need_ok  _o_assert_nz _o_ensure _o_ignore _o_execute_bash
 ### execute - end ################################################}}}
 
 ### file commands ################################################{{{
@@ -271,6 +276,7 @@ _o_wait_for_file_event_bash(){
         echo "usage: watchdir <directory> 'bash; command'"
         return
     fi
+
     local dir="$1"
     shift
     set -m
@@ -278,7 +284,7 @@ _o_wait_for_file_event_bash(){
         echo "### inotifywait exec #########################"
         echo "command: $@"
         sleep 0.1
-        bash -c "$*"
+        _o_execute_bash "$@"
         echo "### inotifywait exec #########################"
     done
 }
