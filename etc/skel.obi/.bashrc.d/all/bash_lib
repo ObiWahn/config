@@ -157,7 +157,7 @@ export _o_debug_
 export OBI_ERROR_ACTION='ask'
 
 _o_say() { echo "${_white}${OBI_PREFIX:-""}$@${_reset}"; }
-_o_err(){ echo; echo -n "${_bold}${_red}Error: "; _o_say "$@"; }
+_o_err(){ echo; echo -n "${_bold}${_red}Error: "; _o_say "$@"; echo -n "${_reset}"; }
 
 #fatal error
 _o_ferr(){ _o_err "$@"; exit 1; }
@@ -187,20 +187,10 @@ _o_ask_to_cont(){
     [[ $(_o_ask_yn "$1") == "yes" ]] || exit 1
 }
 
-export -f _o_err _o_nerr _o_ferr _o_ask_yn _o_ask_to_cont
+export -f _o_say _o_err _o_nerr _o_ferr _o_ask_yn _o_ask_to_cont
 ### error - end ##################################################}}}
 
 ### execute commands #############################################{{{
-_o_exec_cmd(){
-    echo "==============================================================================="
-    echo "running: $@"
-    echo "-------------------------------------------------------------------------------"
-    "$@"
-}
-
-_o_say() {
-    echo "${OBI_PREFIX:-"bashlib"} $*"
-}
 
 _o_check_cmd() {
     command -v "$1" > /dev/null 2>&1
@@ -239,7 +229,14 @@ _o_execute_bash() {
     return $?
 }
 
-export -f _o_exec_cmd  _o_say _o_check_cmd _o_need_cmd _o_need_ok  _o_assert_nz _o_ensure _o_ignore _o_execute_bash
+_o_execute_display(){
+    echo "==============================================================================="
+    echo "running: $@"
+    echo "-------------------------------------------------------------------------------"
+    "$@"
+}
+
+export -f _o_check_cmd _o_need_cmd _o_need_ok  _o_assert_nz _o_ensure _o_ignore _o_execute_bash _o_execute_display
 ### execute - end ################################################}}}
 
 ### file commands ################################################{{{
@@ -255,38 +252,37 @@ _o_file_parts(){
 _o_wait_for_file_event(){
     # cmd dir command arg1 arg2
     # events must be uppper-case
-    if [ -z "$2" ]; then
-        echo "usage: watchdir <directory> <command> [arg ...]"
-        return
-    fi
-    local dir="$1"
-    shift
-    while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
-        echo "### inotifywait exec - start #######################"
-        echo "command: $*"
-        sleep 0.1
-        "$@"
-        echo
-        echo "### inotifywait exec - end #########################"
-    done
+    (
+        _o_assert_nz "$2" "usage: watchdir <directory> <command> [arg ...]"
+
+        local dir="$1"
+        shift
+        while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+            echo "### inotifywait exec - start #######################"
+            echo "command: $*"
+            sleep 0.1
+            "$@"
+            echo
+            echo "### inotifywait exec - end #########################"
+        done
+    )
 }
 
 _o_wait_for_file_event_bash(){
-    if [ -z "$2" ]; then
-        echo "usage: watchdir <directory> 'bash; command'"
-        return
-    fi
+    (
+        _o_assert_nz "$2" "usage: watchdir <directory> 'bash; command'"
 
-    local dir="$1"
-    shift
-    set -m
-    while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
-        echo "### inotifywait exec #########################"
-        echo "command: $@"
-        sleep 0.1
-        _o_execute_bash "$@"
-        echo "### inotifywait exec #########################"
-    done
+        local dir="$1"
+        shift
+        set -m
+        while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+            echo "### inotifywait exec #########################"
+            echo "command: $@"
+            sleep 0.1
+            _o_execute_bash "$@"
+            echo "### inotifywait exec #########################"
+        done
+    )
 }
 
 export -f _o_wait_for_file_event _o_wait_for_file_event_bash
