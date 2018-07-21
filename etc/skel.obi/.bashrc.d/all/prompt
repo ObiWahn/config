@@ -91,6 +91,13 @@ fi
 printf -v PS1 %s "${prompt[@]}"
 unset prompt
 
+prompt_extra(){
+    if [[ -z "$*" ]]; then
+        unset PROMPT_EXTRA
+    else
+        export PROMPT_EXTRA="$*"
+    fi
+}
 
 # various system vars
 PROMPT_COMMAND='_exit=$?; history -a'
