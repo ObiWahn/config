@@ -1,0 +1,364 @@
+#!/bin/bash
+# Copyright - 2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
+
+omake(){
+    local dir_="$(pwd)"
+    local builddir_="${dir_##*/}-build"
+    local builddirfull_="${dir_}-build"
+
+    local candidates=(
+        "$builddirfull_/current"
+        "$builddirfull_"
+        "$builddir_"
+        'build'
+    )
+
+    local found_build_dir=false
+
+    local d real_build_dir
+    for d in "${candidates[@]}"; do
+        if [[ -d "$d" ]]; then
+            cd "$d" && found_build_dir=true && cd - || return
+            real_build_dir="$d"
+            echo "Using directory $real_build_dir for building"
+            sleep 1
+            break
+        fi
+    done
+
+    if ! $found_build_dir ; then
+        echo "can not change into suitable build dir!";
+        return 42;
+    fi
+
+    (
+        cd "$real_build_dir"
+        make -j $(nproc) "$@"
+    )
+}
+make_obi(){ omake "$@"; }
+export -f omake make_obi
+
+show_host_keys(){
+	for f in /etc/ssh/*pub; do
+	    echo "hostkey fingerprint for $f"
+	    ssh-keygen -lf "$f"
+	    ssh-keygen -Emd5 -lf "$f"
+	    echo
+	    echo
+	done
+}
+show_user_keys(){
+	for f in "$HOME/.ssh/"*pub; do
+	    echo "userkey fingerprint for $f"
+	    ssh-keygen -lf "$f"
+	    ssh-keygen -Emd5 -lf "$f"
+	    echo
+	    echo
+	done
+}
+export -f show_host_keys
+
+youtube-stream(){
+    local my_mplayer=(
+    	'/usr/bin/mplayer'
+    	'-cookies'
+    	'-cookies-file' '/tmp/youtube-cookies.txt'
+    )
+
+    while :; do
+        case $1 in
+            -*)
+                my_mplayer+=("$1")
+                shift
+            ;;
+            *)
+                break
+            ;;
+        esac
+    done
+
+    #check this
+    local yhash="${1%%&=list*}"
+    yhash="${yhash##*=}"
+    echo "yhash: $yhash"
+    local url="http://www.youtube.com/watch?v=$yhash"
+    echo "trying URL: $url"
+
+    local my_youtube_dl=(
+    	'/usr/bin/youtube-dl'
+    	'-g'
+    	'--cookies' '/tmp/youtube-cookies.txt'
+    )
+    #my_youtube_dl+=( '-f' '34' ) #limit max quality
+    my_youtube_dl+=("$url")
+
+	local playurl
+    if playurl="$( ${my_youtube_dl[@]} )"; then
+        echo "trying to play $playurl"
+    else
+        echo "unable to get youtube url ... exiting"
+        return 1
+    fi
+    my_mplayer+=("$playurl")
+
+    ${my_mplayer[@]}
+}
+export -f youtube-stream
+
+obi-update-home(){
+    rsync -rlv /etc/skel/ ~
+}
+
+vim(){
+    #if [[ -d /usr/share/vim-youcompleteme ]]; then
+    #    rm -fr ~/.vim/bundle/git-YouCompleteMe
+    #fi
+    /usr/bin/vim -p "$@"
+}
+
+vimcpp(){
+   local cmd=( 'vim' '-p')
+    while IFS=' ' read first reast; do
+        IFS=':' read -u 3 name line pos _  3<<<"$first"
+        cmd+=("$name" "+$line")
+    done <<< "$@"
+    echo "${cmd[@]}"
+    "${cmd[@]}"
+}
+
+
+### screen #######################################################{{{
+screen_off(){
+    sleep 1; xset dpms force off;
+}
+
+screen_presentation_on(){
+    xset s off -dpms
+}
+
+screen_presentation_off(){
+    xset s on +dpms
+}
+
+# export -f screen_off screen_presentation_on screen_presentation_off
+# ### screen - end #################################################}}}
+
+### system info ##################################################{{{
+
+## find free xdisplay
+xdisplay(){
+    local disp=0
+    while [ -e "/tmp/.X${disp}-lock" ]; do
+	    disp=$(( $disp + 1 ))
+    done
+    echo $disp
+}
+export -f xdisplay
+
+_o_udev_by_path(){
+    udevadm info -a -p  $(udevadm info -q path -n $@)
+}
+
+_o_bugs(){
+    # TODO - ask for bugs in smaller chunks
+
+    # list bugs of given gravity
+    local state=""
+    if [[ -z $1 ]]; then
+        state="$1"
+    else
+        state="serious"
+    fi
+    local pkg_list="$(dpkg -l | tail -n+5 | awk '{print $2}')"
+    echo "pkg-list ### $pkg_list ###"
+    apt-listbugs list -s "$state" $pkg_list | less
+}
+
+
+_o_vulnerable_packages(){
+    debsecan | grep -E "${1:-remote.*high}" | awk '{ print $2 }' | sort -u
+}
+export -f _o_udev_by_path _o_bugs _o_vulnerable_packages
+### system info - end ############################################}}}
+
+
+### file commands ################################################{{{
+watchdir(){
+    _o_wait_for_file_event_bash "$@"
+}
+export -f watchdir
+### file commands - end ##########################################{{{
+
+
+###############################################################################
+#admin stuff
+
+### ssh
+
+ssh-show-host-keys(){
+    for f in /etc/ssh/*pub; do
+        echo "hostkey fingerprint for $f"
+        ssh-keygen -lvf "$f"
+        ssh-keygen -Emd5 -lvf "$f"
+        echo
+        echo
+    done
+}
+
+ssh-show-user-keys(){
+    for f in ~/.ssh/*pub; do
+        echo "user fingerprint for $f"
+        ssh-keygen -lf "$f"
+        ssh-keygen -Emd5 -lf "$f"
+        echo
+        echo
+    done
+}
+
+alias ssh_md5='ssh -o FingerprintHash=md5'
+alias ssh-show-fpr='ssh-keygen -lv -f'
+
+### ssl
+o_adm_ssl_cert_decode(){
+    local cfile="$1"
+    openssl x509 -in "$cfile" -text -noout
+}
+
+o_adm_ssl_cert_hash(){
+    local cfile="$1"
+    ln -s "$cfile" "$(openssl x509 -hash -noout -in "$cfile").0"
+}
+
+o_adm_ssl_cert_hash_adv(){
+    #program [-f] /path/to/certfile
+    local openssl=/usr/bin/openssl
+    local certdir=${SSL_CERT_DIR:-/etc/ssl/certs}
+
+    # -f as firt args sets overwrite mode
+    if [[ "$1" = "-f" ]]; then
+        local overwrite=1
+        shift # remove $1
+    fi
+
+    if [ ! -f $openssl ]; then
+        echo "ERROR: Can't find $openssl. openssl-util installed?" >&2
+    fi
+
+
+    if [ -f "$1" ]; then
+        local certfile=$1
+        local certname="$(basename "$certfile")"
+
+        echo "Certificate $certname"
+        echo "  copy to $certdir"
+
+        if (( $overwrite == 1 )) && [[ -f "$certdir/$certname" ]]; then
+            echo >&2
+            echo "ERROR: certificate $certname exists" >&2
+            exit 2;
+        fi
+
+        cp "$1" "$certdir/$certname"
+
+        # create symbolic link from hash
+        echo -n "  generating hash: "
+        local HASH="$($openssl x509 -hash -noout -in "$certfile")"
+        echo "$HASH"
+
+        # handle hash collisions
+        suffix=0
+        while (( $overwrite == 1 )) && [ -h "$certdir/$HASH.$suffix" ]; do
+            (( foo++ ))
+        done
+
+        echo "  linking $HASH.$suffix -> $certname"
+
+        if [[ $overwrite ]]; then
+            ln -sf "$certname" "$certdir/$HASH.$suffix"
+        else
+            ln -s "$certname" "$certdir/$HASH.$suffix"
+        fi
+    else
+        echo >&2
+        echo "ERROR: file does not exist $1" >&2
+        echo >&2
+        echo "This script adds (root) certificates for wget(ssl) to $certdir." >&2
+        echo "SYNTAX: $(basename $0) [Options] [x509-certificate]" >&2
+        echo >&2
+        echo "Option: -f      force overwriting if certificate exists" >&2
+    fi
+}
+
+o_adm_sort_passwd(){
+    if sort -n -t: -k3 < /etc/passwd >/etc/passwd.new; then
+        cp /etc/passwd /etc/passwd.old
+        mv /etc/passwd.new /etc/passwd
+    else
+        echo "sorting of passwd failed"
+    fi
+}
+
+o_ping_fragmentation_mtu_ip(){
+    # TODO write loop to test for good result
+    ping -s "$1" -M 'do' "$2"
+}
+
+o_process_count(){
+    ps -ef | \
+    perl -a -F'\d+:\d+:\d+ ' -n -e 'print @F[1]' -- | \
+    sort | uniq -c | sort -n
+}
+
+### fun ##########################################################{{{
+_o_ssh_over_nodes(){
+    # ssh connection over multipe hops
+    local hosts=( "$@" )
+    local hosts_len="${#hosts[@]}"
+    local cmd="ssh ${hosts["$hosts_len"-1]}"
+    for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
+        cmd="ssh -t ${hosts[$i]} $cmd"
+    done
+    $cmd
+}
+
+_o_countdown()
+{
+    local min=${1:-5}
+    local sec=$((60 * min))
+    local clear_eol=$(tput el)
+
+    echo "countdown from $min:00 min "
+    echo
+
+    while (( sec > 0 )); do
+        min_left=$((sec/60))
+
+        if ((min_left >= 3)); then
+            printf -v padded_sec "%02d" "$((sec%60))"
+            out="$min_left:$padded_sec"
+            unit=" min"
+        else
+            out="$sec"
+            unit=" sec"
+        fi
+
+        tput bold
+        tput setaf 1
+        echo -n "     "
+        echo -n "$out"
+        tput sgr0
+        echo -n "$unit"
+        echo -n " left"
+
+        sleep 1
+        sec=$((sec - 1))
+
+        #write_x_n_times $'\b' $((${#out}+${#unit}))
+        echo -ne "\r$clear_eol"
+    done
+    echo
+}
+export -f _o_ssh_over_nodes _o_countdown
+### fun - end ####################################################{{{
+
