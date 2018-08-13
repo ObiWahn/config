@@ -39,6 +39,39 @@ omake(){
 make_obi(){ omake "$@"; }
 export -f omake make_obi
 
+ocmake(){
+
+    [[ -f CMakeLists.txt ]] || { echo "no CMakeLists.txt"; return; }
+
+    local dir_="$(pwd)"
+    local builddir_="${dir_##*/}-build"
+    local builddirfull_="${dir_}-build"
+
+    local candidates=(
+        "$builddirfull_/current"
+        "$builddirfull_"
+        "$builddir_"
+        'build'
+    )
+
+    local build_type="${1:-RelWithDebInfo}"
+    shift 1
+
+    mkdir -p "$builddirfull_/$build_type" || { echo "can not create build dir"; return; }
+    rm -f "$builddirfull_/current"
+    ln -s "$builddirfull_/$build_type" "$builddirfull_/current" || { echo "can not create symlink"; return; }
+    [[ -h "$dir_/build_dir" ]] && rm "$dir_/build_dir"
+    ln -s "$builddirfull_/current" "$dir_/build_dir"
+
+    (
+        cd "$builddirfull_/$build_type" || _o_ferr "can not cd into build dir"
+        cmake "-DCMAKE_BUILD_TYPE=${build_type}" "$@" "$dir_"
+    )
+}
+cmake_obi(){ ocmake "$@"; }
+export -f ocmake cmake_obi
+
+
 show_host_keys(){
 	for f in /etc/ssh/*pub; do
 	    echo "hostkey fingerprint for $f"
@@ -127,6 +160,24 @@ vimcpp(){
     "${cmd[@]}"
 }
 
+### docker #######################################################{{{
+docker_stop_all(){
+    docker stop $(docker ps --all -q)
+}
+
+docker_rm_all(){
+    docker rm $(docker ps --all -q)
+}
+
+docker_image_rm_all(){
+    docker rmi $(docker images --all -q)
+}
+
+docker_image_rm_dangling(){
+    docker rmi $(docker images -f "dangling" -q)
+}
+
+### docker - end #################################################}}}
 
 ### screen #######################################################{{{
 screen_off(){
@@ -141,8 +192,8 @@ screen_presentation_off(){
     xset s on +dpms
 }
 
-# export -f screen_off screen_presentation_on screen_presentation_off
-# ### screen - end #################################################}}}
+export -f screen_off screen_presentation_on screen_presentation_off
+### screen - end #################################################}}}
 
 ### system info ##################################################{{{
 
