@@ -1,6 +1,10 @@
 #!/bin/bash
 # Copyright - 2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
 
+unrz(){
+    ~/.bashrc.d/all/scripts/unrz "$@"
+}
+
 omake(){
     local dir_="$(pwd)"
     local builddir_="${dir_##*/}-build"
@@ -64,7 +68,7 @@ ocmake(){
     ln -s "$builddirfull_/current" "$dir_/build_dir"
 
     (
-        cd "$builddirfull_/$build_type" || _o_ferr "can not cd into build dir"
+        cd "$builddirfull_/$build_type" || _o_ferrx "can not cd into build dir"
         cmake "-DCMAKE_BUILD_TYPE=${build_type}" "$@" "$dir_"
     )
 }
@@ -173,10 +177,15 @@ docker_image_rm_all(){
     docker rmi $(docker images --all -q)
 }
 
+docker_total_reset(){
+    docker_stop_all      && \
+    docker_rm_all        && \
+    docker_image_rm_all
+}
+
 docker_image_rm_dangling(){
     docker rmi $(docker images -f "dangling" -q)
 }
-
 ### docker - end #################################################}}}
 
 ### screen #######################################################{{{

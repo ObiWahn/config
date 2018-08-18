@@ -161,10 +161,19 @@ _o_err(){ echo; echo -n "${_bold}${_red}Error: "; _o_say "$@"; echo -n "${_reset
 _o_success(){ echo; echo -n "${_bold}${_green}Success: "; _o_say "$@"; echo -n "${_reset}"; }
 
 #fatal error
-_o_ferr(){ _o_err "$@"; exit 1; }
+_o_ferr(){ _o_err "$@"; return 1; }
+_o_ferrx(){ _o_err "$@"; exit 1; }
 
 #non fatal error
 _o_nerr(){
+_o_err "$@"
+case $OBI_ERROR_ACTION in
+    exit) return 1 ;;
+    ask)  local rv="$(_o_ask_yn "The Program encountered an error - do you want to continue?")"; [[ "$rv" == "no" ]] && exit 1 ;;
+esac
+}
+
+_o_nerrx(){
 _o_err "$@"
 case $OBI_ERROR_ACTION in
     exit) exit 1 ;;
@@ -177,18 +186,20 @@ _o_ask_yn(){
 while true; do
     read -p "$@ (y/n) " yn
     case "$yn" in
-        [Yy]*) echo "yes"; break ;;
-        [Nn]*) echo "no" ; break ;;
+        [Yy]*) return 0 ;;
+        [Nn]*) return 1 ;;
         *) echo "Please answer with yes or no." 1>&2 ;;
     esac
 done
 }
 
-_o_ask_to_cont(){
-    [[ $(_o_ask_yn "$1") == "yes" ]] || exit 1
+_o_ask_to_contx(){
+    _o_ask_yn || return 1
 }
 
-export -f _o_say _o_success _o_err _o_nerr _o_ferr _o_ask_yn _o_ask_to_cont
+
+export -f _o_say _o_success _o_err _o_nerr _o_ferr _o_ask_yn
+export -f _o_ferrx _o_ask_to_contx
 ### error - end ##################################################}}}
 
 ### execute commands #############################################{{{
@@ -201,28 +212,34 @@ _o_check_cmd() {
 _o_need_cmd() {
     if ! _o_fcheck_cmd "$1"; then
         _o_ferr "need '$1' (command not found)"
+        return 1
     fi
 }
 
 _o_need_ok() {
-    if [ $? != 0 ]; then
+    rv=$?
+    if [ $rv != 0 ]; then
         _o_ferr "$1"
+        return $rv
     fi
 }
 
 _o_assert_nz() {
     if [ -z "$1" ]; then
         _o_ferr "(assert) - $2"
+        return $?
     fi
 }
 
 _o_ensure() {
     "$@"
     _o_need_ok "command failed: $*"
+    return $?
 }
 
 _o_ignore() {
     "$@"
+    return 0
 }
 
 _o_execute_bash() {

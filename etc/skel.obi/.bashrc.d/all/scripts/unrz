@@ -1,0 +1,155 @@
+#!/bin/bash
+
+#
+# All Purpose Extractor Wrapper
+#
+# Extracts all common file formats. And puts the content in a target directory
+# named after the archive. In case the newly created directory contains nothing
+# but a single subdirectory this subdirectory will get moved down in the tree
+# while the original target directory is unlinked.
+#
+# Written by Jan Christoph Uhde
+# linux (at) obiwahn (dot) org
+#
+
+shopt -s nullglob
+shopt -s extglob
+shopt -s nocaseglob
+
+base_dir="$PWD"
+delete_files=true
+
+create_replacement=true
+replacement_message="replaced by unrz"
+
+#
+# Todo
+# - use file command to verify the filetype
+# - more and better error messages
+#
+
+unrz_file(){
+    local content
+    for file in "$@"; do
+        cd "$base_dir"
+
+        #skip non files
+        [[ -f "$file" ]] || continue
+
+        #skip files that have already been replaced
+        read -n $((${#replacement_message}*3)) content <"$file"
+        if [[ "$content" == "$replacement_message" ]]; then
+            echo "skipping file: '$file' already unpacked";
+            continue
+        fi
+
+        # filter for known formats
+        case $file in
+            *zip)
+                local target_dir="${file%\.zip}"
+                local ext_cmd="unzip"
+                ;;
+            *rar)
+                local target_dir="${file%\.rar}"
+                local ext_cmd="unrar x"
+                ;;
+            *bz2)
+                local target_dir="${file%\.bz2}"
+                local ext_cmd="tar xjf"
+                ;;
+            *tar.gz)
+                local target_dir="${file%\.tar\.gz}"
+                local ext_cmd="tar xzf"
+                ;;
+            *.tar)
+                local target_dir="${file%\.tar}"
+                local ext_cmd="tar xf"
+                ;;
+            *.gz)
+                local target_dir="${file%\.gz}"
+                local ext_cmd="gunzip"
+                ;;
+            *)
+                echo "unknown format $file"
+                continue
+                ;;
+        esac
+
+        #get extention
+        local ext="${file##*\.}"
+        #get filename without path
+        local filename="${file##*/}"
+
+        #check for multipart files
+        local multipart=false
+        local re=".+(P|p)(A|a)(R|r)(T|t)[0-9]+\\.$ext"
+        if [[ $file =~ $re ]]; then
+            echo "found multipart $ext"
+            local multipart=true
+            #prefix is target dir
+            local target_dir="${file%\.part*\.$ext}"
+        fi
+
+        echo "taget: $target_dir"
+
+        #create target dir -- is realtive
+        mkdir "$target_dir" || continue
+
+        local part_list=()
+        local mv_fail=false
+        if $multipart; then # unpack multipart
+            #move all parts to new dir
+            for part in "$target_dir"*"$ext"; do
+                if [[ -f "$part" ]]; then
+                    mv "$part" "$target_dir" || { mv_fail=true; continue; }
+                    part_list+=( "$target_dir/$filename" )
+                    $create_replacement && echo "$replacement_message" > "$part"
+                fi
+            done
+            $mv_fail && continue
+        else
+            mv "$file" "$target_dir" || continue
+            local part_list=( "$target_dir/$filename" )
+            set +x
+            $create_replacement && echo "$replacement_message" > "$file"
+        fi
+
+        #create subshell
+        (
+
+        cd "$target_dir" || continue
+        $ext_cmd "${filename}" 1>/dev/null || continue
+
+        local rm_fail=false
+        if $delete_files; then
+            cd "$base_dir"
+            for part in "${part_list[@]}"; do
+                rm "$part" || { rm_fail=true && echo "failed to delete $part"; }
+            done
+        fi
+        $rm_fail && continue
+
+        exit
+
+        local file_list=(*)
+
+        if [[ ${#file_list[@]} -eq 1 ]]; then
+            local ext_dir="${file_list[0]}"
+            if [[ -d "$ext_dir" ]]; then
+                if [[ "$ext_dir" == "$target_dir" ]]; then
+                    mv "${file_list[0]}"/* . || continue
+                    rm -fr "${file_list[0]}"
+                else
+                    mv "$ext_dir" "$base_dir" || continue
+                    cd "$base_dir" || continue
+                    rm -fr "$target_dir"
+                fi
+            fi
+        fi
+
+        cd "$base_dir"
+        )
+    done
+}
+
+unrz_file "$@"
