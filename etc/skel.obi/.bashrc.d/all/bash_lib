@@ -113,8 +113,27 @@ _o_del_word(){
     done
 }
 
+_o_spin_cmd() {
+    {
+        while :; do
+            for a in / - \\ \|; do
+                printf '%s\b' "$a";
+                sleep 0.1;
+            done;
+        done &
+    } 2> /dev/null
+    local spin_pid=$!
+
+    "$@"
+    local status=$?
+
+    { kill $spin_pid && wait; } 2>/dev/null
+
+    return $status
+}
 
 export -f _o_echo_padd _o_echo_long _o_section _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
+export -f _o_spin_cmd
 ### formatted output - end #######################################}}}
 
 ### debug ########################################################{{{
@@ -131,24 +150,47 @@ _o_debug(){
     # $1 - level
     # $2 - message
     #
-    ${conf[debug]} || return
-    local action=""
+
     local level="$1"
     shift
-    if [[ "$1" == @(ask|sleep) ]]; then
-        action="$1"
-        shift
-    fi
+
     msg="$@"
 
     if (( level <= $OBI_DEBUG )); then
         while read -r debug_line <&13; do
-            printf '%q\n' "debug $level: $debug_line" 1>&2
+            printf '%q\n' "#-# DEBUG ($level)#-# : $debug_line" 1>&2
         done 13<<< "$msg"
+    else
+        return 1
     fi
-    [[ "$OBI_DEBUG_ACTION" == "sleep" ]] && sleep 5
-    [[ "$OBI_DEBUG_ACTION" == "ask" ]]   && read -p "press key to continue" -n 1
 }
+
+_o_debug_action(){
+    #
+    # This function displays debug information
+    # when the debug level set via command line
+    # is greater or equal the level passed to
+    # the function
+    #
+    # In:
+    # $1 - level
+    # $2 - message
+    #
+
+    local level="$1"
+    local action="${2:-$OBI_DEBUG_ACTION}"
+    shift 2
+
+    if _o_debug "$level" "$@"; then
+        [[ "$OBI_DEBUG_ACTION" == "sleep" ]] && sleep 5
+        [[ "$OBI_DEBUG_ACTION" == "prompt" ]]   && read -p "press key to continue" -n 1
+        return 0
+    else
+        return 1
+    fi
+}
+
+
 export _o_debug_
 ### debug end ####################################################}}}
 
