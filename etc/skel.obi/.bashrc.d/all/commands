@@ -216,6 +216,15 @@ xdisplay(){
 }
 export -f xdisplay
 
+o_mime_types() {
+    while read -r mime_type rest;do
+        echo -n "$mime_type:"
+        xdg-mime query default "$mime_type" 2>/dev/null
+        echo
+    done < <( grep -v '^#' /etc/mime.types)
+}
+o_mime_types_set() { o_mime_types | /usr/bin/env grep desktop; }
+
 _o_udev_by_path(){
     udevadm info -a -p  $(udevadm info -q path -n $@)
 }
