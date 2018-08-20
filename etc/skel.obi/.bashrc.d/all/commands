@@ -40,7 +40,7 @@ omake(){
         make -j $(nproc) "$@"
     )
 }
-make_obi(){ omake "$@"; }
+make_obi() { omake "$@"; }
 export -f omake make_obi
 
 ocmake(){
@@ -72,7 +72,7 @@ ocmake(){
         cmake "-DCMAKE_BUILD_TYPE=${build_type}" "$@" "$dir_"
     )
 }
-cmake_obi(){ ocmake "$@"; }
+cmake_obi() { ocmake "$@"; }
 export -f ocmake cmake_obi
 
 
@@ -216,7 +216,7 @@ xdisplay(){
 }
 export -f xdisplay
 
-o_mime_types() {
+o_mime_types(){
     while read -r mime_type rest;do
         echo -n "$mime_type:"
         xdg-mime query default "$mime_type" 2>/dev/null
@@ -391,8 +391,7 @@ _o_ssh_over_nodes(){
     $cmd
 }
 
-_o_countdown()
-{
+_o_countdown(){
     local min=${1:-5}
     local sec=$((60 * min))
     local clear_eol=$(tput el)
@@ -430,4 +429,3 @@ _o_countdown()
 }
 export -f _o_ssh_over_nodes _o_countdown
 ### fun - end ####################################################{{{
-

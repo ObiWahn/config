@@ -117,7 +117,7 @@ _o_del_word(){
     done
 }
 
-_o_spin_cmd() {
+_o_spin_cmd(){
     {
         while :; do
             for a in / - \\ \|; do
@@ -258,24 +258,24 @@ _o_execute_show(){
     _o_symbol_section "#" " <= external programm "
 }
 
-_o_ignore() {
+_o_ignore(){
     "$@"
     return 0
 }
 
-_o_check_cmd() {
+_o_check_cmd(){
     command -v "$1" > /dev/null 2>&1
     return $?
 }
 
-_o_need_cmd() {
+_o_need_cmd(){
     if ! _o_fcheck_cmd "$1"; then
         _o_ferr "need '$1' (command not found)"
         return 1
     fi
 }
 
-_o_need_ok() {
+_o_need_ok(){
     rv=$?
     if (( $rv != 0 )); then
         _o_ferr "$1"
@@ -284,7 +284,7 @@ _o_need_ok() {
 }
 _o_need_okx() { _need_ok "$@" || exit $?; }
 
-_o_assert_nz() {
+_o_assert_nz(){
     if [ -z "$1" ]; then
         _o_ferr "(assert) - $2"
         return $?
@@ -292,14 +292,14 @@ _o_assert_nz() {
 }
 _o_assert_nzx() { _o_assert_nz "$@" || exit $?; }
 
-_o_ensure() {
+_o_ensure(){
     "$@"
     _o_need_ok "command failed: $*"
     return $?
 }
 _o_ensurex() { _ensure "$@" || exit $?; }
 
-_o_execute_bash() {
+_o_execute_bash(){
     bash -c "$*"
     return $?
 }
@@ -408,8 +408,7 @@ _o_get_meminfo_status(){
 ### array ########################################################{{{
 #http://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
 declare BSORT=()
-_o_bubble_sort()
-{
+_o_bubble_sort(){
     # @param [ARGUMENTS]...
     #
     # Sort all positional arguments and store them in global array BSORT.
