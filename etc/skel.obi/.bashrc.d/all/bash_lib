@@ -24,6 +24,9 @@ _o_symbol_section(){
     local title="$@"
 
     local width=80
+    if [[ -n $title ]]; then
+        width=$(( width -2 ))
+    fi
     local fill=$(( width-${#title} ))
     local rest=$(( fill % 2 ))
     fill=$(( fill / 2))
