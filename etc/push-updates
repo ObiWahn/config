@@ -2,5 +2,12 @@
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd "$script_dir"
 
-rsync -avh --partial --progress ./skel/      /etc/skel/
-rsync -avh --partial --progress ./skel.obi/  /etc/skel.obi/
+while read source target; do
+    user="$(stat --printf %G "$target")"
+    echo "copy ${source} -> ${target} ($user)"
+    rsync -avh --partial --progress "$source" "$target"
+    chown -R "$user:$user" "${target}"
+done <<HERE
+./skel/      /etc/skel/
+./skel.obi/  /etc/skel.obi/
+HERE
