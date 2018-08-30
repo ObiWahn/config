@@ -69,6 +69,14 @@ unrz_file(){
                 local target_dir="${file%\.gz}"
                 local ext_cmd="gunzip"
                 ;;
+            *.xz)
+                local target_dir="${file%\.xz}"
+                local ext_cmd="tar xf"
+                ;;
+            *.deb)
+                local target_dir="${file%\.deb}"
+                local ext_cmd="ar x"
+                ;;
             *)
                 echo "unknown format $file"
                 continue

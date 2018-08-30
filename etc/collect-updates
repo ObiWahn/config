@@ -1,6 +1,13 @@
 #!/bin/bash
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd "$script_dir"
+git pull || { echo "failed to pull"; exit 1; }
 
-rsync -avh --partial --progress /etc/skel/     ./skel/
-rsync -avh --partial --progress /etc/skel.obi/ ./skel.obi/
+while read source target; do
+    echo "#####################################################################"
+    echo "copy ${source} -> ${target}"
+    rsync -avh --partial --progress "$source" "$target"
+done <<HERE
+/etc/skel/     ./skel/
+/etc/skel.obi/ ./skel.obi/
+HERE
