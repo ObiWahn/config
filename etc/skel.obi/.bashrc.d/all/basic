@@ -45,6 +45,11 @@ alias systemd-show-runlevel='systemctl list-units --type=target'
 # log colorizer
 alias ccze='ccze -A'
 
+show_locale(){
+    set | grep "^LANG=*"
+    set | grep "^LC_*=*"
+}
+
 ###############################################################################
 # grep
 
