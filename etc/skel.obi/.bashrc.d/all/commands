@@ -5,6 +5,12 @@ unrz(){
     ~/.bashrc.d/all/scripts/unrz "$@"
 }
 
+disable_lid(){
+    systemd-inhibit --what=handle-lid-switch sleep 1d
+}
+
+export -f unrz disable_lid
+
 omake(){
     local dir_="$(pwd)"
     local builddir_="${dir_##*/}-build"
