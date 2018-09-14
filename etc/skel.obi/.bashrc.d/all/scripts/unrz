@@ -30,6 +30,7 @@ replacement_message="replaced by unrz"
 
 unrz_file(){
     local content
+    local verbose=false
     for file in "$@"; do
         cd "$base_dir"
 
@@ -39,7 +40,7 @@ unrz_file(){
         #skip files that have already been replaced
         read -n $((${#replacement_message}*3)) content <"$file"
         if [[ "$content" == "$replacement_message" ]]; then
-            echo "skipping file: '$file' already unpacked";
+            $verbose && echo "skipping file: '$file' already unpacked";
             continue
         fi
 
@@ -98,10 +99,14 @@ unrz_file(){
             local target_dir="${file%\.part*\.$ext}"
         fi
 
-        echo "taget: $target_dir"
 
         #create target dir -- is realtive
-        mkdir "$target_dir" || continue
+        if ! mkdir "$target_dir"; then
+            target_dir="$target_dir-possilbe_dupe"
+            mkdir "$target_dir" || continue
+        fi
+
+        echo "taget: $target_dir"
 
         local part_list=()
         local mv_fail=false
