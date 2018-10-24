@@ -405,7 +405,28 @@ _o_get_meminfo_status(){
 	echo "VmSize_KiB $VmSize VmRss_KiB $VmRSS"
     # claims kB
 }
-### system info - end ############################################{{{
+### system info - end ############################################}}}
+
+
+### remote commands ##############################################{{{
+_o_execute_remote(){
+    local interpreter="$1"
+    local user_at_host="$2"
+    local realscript="$3"
+    shift 3
+
+    local -a args
+
+    local count=0
+    for arg in "$@"; do
+      args[count]=$(printf '%q' "$arg")
+      ((count++))
+    done
+
+    ssh "$user_at_host" "cat | ${interpreter} /dev/stdin" "${args[@]}" < "$realscript"
+}
+export -f _o_execute_remote
+### remote commands - end ########################################}}}
 
 
 ### array ########################################################{{{
