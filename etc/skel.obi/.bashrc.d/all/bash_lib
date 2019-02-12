@@ -287,8 +287,16 @@ _o_need_ok(){
 }
 _o_need_okx() { _need_ok "$@" || exit $?; }
 
+_o_assert(){
+    if [[ $1 -ne 0 ]]; then
+        _o_ferr "(assert) - $2"
+        return $?
+    fi
+}
+_o_assertx() { _o_assert "$@" || exit $?; }
+
 _o_assert_nz(){
-    if [ -z "$1" ]; then
+    if [[ -z "$1" ]]; then
         _o_ferr "(assert) - $2"
         return $?
     fi
@@ -308,8 +316,8 @@ _o_execute_bash(){
 }
 
 export -f _o_execute_show _o_ignore _o_check_cmd _o_need_cmd
-export -f _o_need_ok  _o_assert_nz  _o_ensure
-export -f _o_need_okx _o_assert_nzx _o_ensurex
+export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure
+export -f _o_need_okx _o_assertx _o_assert_nzx _o_ensurex
 export -f _o_execute_bash
 ### execute - end ################################################}}}
 
@@ -344,8 +352,7 @@ _o_wait_for_file_event(){
 
 _o_wait_for_file_event_bash(){
     (
-        _o_assert_nzx "${2:-""}" "usage: watchdir <directory> 'bash; command'"
-
+        _o_assertx "$(( $# < 2 ))" "usage: watchdir <directory> '<bash; commands>'"
         local dir="$1"
         shift
         set -m
