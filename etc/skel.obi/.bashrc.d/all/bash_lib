@@ -289,15 +289,24 @@ _o_need_okx() { _need_ok "$@" || exit $?; }
 
 _o_assert(){
     if [[ $1 -ne 0 ]]; then
-        _o_ferr "(assert) - $2"
+        _o_ferr "(assert got '$1' expected '0') - $2 "
         return $?
     fi
 }
 _o_assertx() { _o_assert "$@" || exit $?; }
 
+# $(( )) expression return 0 for fail
+_o_assert_calc(){
+    if [[ $1 -eq 0 ]]; then
+        _o_ferr "(assert - got '$1' expected not '0') - $2 "
+        return $?
+    fi
+}
+_o_assert_calcx() { _o_assert_calc "$@" || exit $?; }
+
 _o_assert_nz(){
     if [[ -z "$1" ]]; then
-        _o_ferr "(assert) - $2"
+        _o_ferr "(assert '$1' is empty) - $2"
         return $?
     fi
 }
@@ -352,7 +361,7 @@ _o_wait_for_file_event(){
 
 _o_wait_for_file_event_bash(){
     (
-        _o_assertx "$(( $# < 2 ))" "usage: watchdir <directory> '<bash; commands>'"
+        _o_assert_calcx "$(( $# > 1 ))" "usage: watchdir <directory> '<bash; commands>'"
         local dir="$1"
         shift
         set -m
