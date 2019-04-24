@@ -14,7 +14,7 @@ vim(){
 ## Enable color support of ls and also add handy aliases
 case $(uname) in
     Linux)
-        eval `dircolors -b`
+        eval "$(dircolors -b)"
         alias ls='ls --color=always -h'
     ;;
     Darwin)
@@ -31,7 +31,7 @@ alias dir='ls --color=auto --format=vertical'
 alias vdir='ls --color=auto --format=long'
 
 du(){ /usr/bin/du -h "$@" ; }
-bigdirs(){ /usr/bin/du -hsx * | sort -rh | head -10; }
+bigdirs(){ /usr/bin/du -hsx -- * | sort -rh | head -10; }
 df(){ /bin/df -h "$@" ; }
 
 alias di='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,ntfs'
@@ -39,6 +39,8 @@ alias dia='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,fuse,tmpfs'
 alias dio='/usr/bin/di -h -s -n -t -f MfpbstO -I ext3,ext4,fuseblk,ntfs'
 
 alias mosh='/usr/bin/mosh --server="env MOSH_SERVER_SIGNAL_TMOUT=86400 mosh-server"'
+
+alias bashcheck='shellcheck -x -s bash'
 
 ###############################################################################
 #admin stuff
@@ -61,6 +63,8 @@ alias egrep='/bin/egrep --colour --binary-files=text'
 
 gps(){
     # grep for process
+    # shellcheck disable=SC2009 # use pgrep instead grepping ps
+    # shellcheck disable=SC2196 # egrep not standard
     ps aux | \
     grep -v "egrep --colour --binary-files=text" | \
     egrep --colour --binary-files=text "$@"
@@ -68,6 +72,7 @@ gps(){
 
 o_pscg(){ ps xawf -eo pid,user,cgroup,args; }
 o_gpscg(){
+    # shellcheck disable=SC2196
     pscg | \
     grep -v "egrep --colour --binary-files=text" | \
     egrep --colour --binary-files=text "$@"
@@ -88,7 +93,7 @@ type-less(){
 
 type-obi(){
     res="$(type "$1")"
-    if (($? == 0)); then
+    if $?; then
         if [[ "$res" == *aliased* ]]; then
             grep -R "$1" ~/.bashrc.d/*
         fi
@@ -109,7 +114,7 @@ screen(){
         if (( ! ${#screens[@]} )); then
             echo "no screen session found in /var/run/screen"
         else
-            for s in ${screens[@]#*S-}; do
+            for s in "${screens[@]#*S-}"; do
                 echo "$s"
             done
         fi

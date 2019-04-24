@@ -12,6 +12,7 @@ disable_lid(){
 export -f unrz disable_lid
 
 omake(){
+    # shellcheck disable=SC2155 # declare and assign in one
     local dir_="$(pwd)"
     local builddir_="${dir_##*/}-build"
     local builddirfull_="${dir_}-build"
@@ -42,17 +43,17 @@ omake(){
     fi
 
     (
-        cd "$real_build_dir"
-        make -j $(nproc) "$@"
+        cd "$real_build_dir" && \
+        make -j "$(nproc)" "$@"
     )
 }
 make_obi() { omake "$@"; }
 export -f omake make_obi
 
 ocmake(){
-
     [[ -f CMakeLists.txt ]] || { echo "no CMakeLists.txt"; return; }
 
+    # shellcheck disable=SC2155 # declare and assign in one
     local dir_="$(pwd)"
     local builddir_="${dir_##*/}-build"
     local builddirfull_="${dir_}-build"
@@ -137,7 +138,7 @@ youtube-stream(){
     my_youtube_dl+=("$url")
 
 	local playurl
-    if playurl="$( ${my_youtube_dl[@]} )"; then
+    if playurl="$( "${my_youtube_dl[@]}" )"; then
         echo "trying to play $playurl"
     else
         echo "unable to get youtube url ... exiting"
@@ -145,7 +146,7 @@ youtube-stream(){
     fi
     my_mplayer+=("$playurl")
 
-    ${my_mplayer[@]}
+    "${my_mplayer[@]}"
 }
 export -f youtube-stream
 
@@ -162,8 +163,8 @@ vim(){
 
 vimcpp(){
    local cmd=( 'vim' '-p')
-    while IFS=' ' read first reast; do
-        IFS=':' read -u 3 name line pos _  3<<<"$first"
+    while IFS=' ' read -r first _; do
+        IFS=':' read -r -u 3 name line _  3<<<"$first"
         cmd+=("$name" "+$line")
     done <<< "$@"
     echo "${cmd[@]}"
@@ -172,14 +173,17 @@ vimcpp(){
 
 ### docker #######################################################{{{
 docker_stop_all(){
+    # shellcheck disable=SC2046
     docker stop $(docker ps --all -q)
 }
 
 docker_rm_all(){
+    # shellcheck disable=SC2046
     docker rm $(docker ps --all -q)
 }
 
 docker_image_rm_all(){
+    # shellcheck disable=SC2046
     docker rmi $(docker images --all -q)
 }
 
@@ -190,6 +194,7 @@ docker_total_reset(){
 }
 
 docker_image_rm_dangling(){
+    # shellcheck disable=SC2046
     docker rmi $(docker images -f "dangling" -q)
 }
 ### docker - end #################################################}}}
@@ -216,7 +221,7 @@ export -f screen_off screen_presentation_on screen_presentation_off
 xdisplay(){
     local disp=0
     while [ -e "/tmp/.X${disp}-lock" ]; do
-	    disp=$(( $disp + 1 ))
+	    disp=$(( disp + 1 ))
     done
     echo $disp
 }
@@ -232,7 +237,7 @@ o_mime_types(){
 o_mime_types_set() { o_mime_types | /usr/bin/env grep desktop; }
 
 _o_udev_by_path(){
-    udevadm info -a -p  $(udevadm info -q path -n $@)
+    udevadm info -a -p  "$(udevadm info -q path -n "$@")"
 }
 
 _o_bugs(){
@@ -245,8 +250,10 @@ _o_bugs(){
     else
         state="serious"
     fi
+    # shellcheck disable=SC2155 # declare and assign in one
     local pkg_list="$(dpkg -l | tail -n+5 | awk '{print $2}')"
     echo "pkg-list ### $pkg_list ###"
+    # shellcheck disable=SC2086
     apt-listbugs list -s "$state" $pkg_list | less
 }
 
@@ -311,6 +318,7 @@ o_adm_ssl_cert_hash(){
     ln -s "$cfile" "$(openssl x509 -hash -noout -in "$cfile").0"
 }
 
+# shellcheck disable=SC2155 # declare and assign in one
 o_adm_ssl_cert_hash_adv(){
     #program [-f] /path/to/certfile
     local openssl=/usr/bin/openssl
@@ -334,7 +342,7 @@ o_adm_ssl_cert_hash_adv(){
         echo "Certificate $certname"
         echo "  copy to $certdir"
 
-        if (( $overwrite == 1 )) && [[ -f "$certdir/$certname" ]]; then
+        if (( overwrite == 1 )) && [[ -f "$certdir/$certname" ]]; then
             echo >&2
             echo "ERROR: certificate $certname exists" >&2
             exit 2;
@@ -349,7 +357,7 @@ o_adm_ssl_cert_hash_adv(){
 
         # handle hash collisions
         suffix=0
-        while (( $overwrite == 1 )) && [ -h "$certdir/$HASH.$suffix" ]; do
+        while (( overwrite == 1 )) && [ -h "$certdir/$HASH.$suffix" ]; do
             (( foo++ ))
         done
 
@@ -365,7 +373,7 @@ o_adm_ssl_cert_hash_adv(){
         echo "ERROR: file does not exist $1" >&2
         echo >&2
         echo "This script adds (root) certificates for wget(ssl) to $certdir." >&2
-        echo "SYNTAX: $(basename $0) [Options] [x509-certificate]" >&2
+        echo "SYNTAX: $(basename "$0") [Options] [x509-certificate]" >&2
         echo >&2
         echo "Option: -f      force overwriting if certificate exists" >&2
     fi
@@ -394,9 +402,10 @@ o_process_count(){
 ### fun ##########################################################{{{
 _o_ssh_over_nodes(){
     # ssh connection over multipe hops
+    local cmd
     local hosts=( "$@" )
     local hosts_len="${#hosts[@]}"
-    local cmd="ssh ${hosts["$hosts_len"-1]}"
+    cmd="ssh ${hosts[$(( hosts_len - 1 ))]}"
     for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
         cmd="ssh -t ${hosts[$i]} $cmd"
     done
@@ -406,6 +415,7 @@ _o_ssh_over_nodes(){
 _o_countdown(){
     local min=${1:-5}
     local sec=$((60 * min))
+    # shellcheck disable=SC2155 # declare and assign in one
     local clear_eol=$(tput el)
 
     echo "countdown from $min:00 min "
@@ -435,7 +445,7 @@ _o_countdown(){
         sec=$((sec - 1))
 
         #write_x_n_times $'\b' $((${#out}+${#unit}))
-        echo -ne "\r$clear_eol"
+        echo -ne "\\r$clear_eol"
     done
     echo
 }
