@@ -1,13 +1,18 @@
 # Copyright - 2010 - Jan Christoph Uhde <Jan@UhdeJC.com>
 # If not running interactively, don't do anything
+
+# shellcheck shell=bash
 [ -z "$PS1" ] && return
 
 if ! $OBI_PROFILE_SOURCED; then
     echo "profile not sourced"
-    . $HOME/.bash_profile
+    # shellcheck disable=SC1090
+    . "$HOME/.bash_profile"
 fi
 
-export UNAME="$(uname)"
+UNAME="$(uname)"
+
+export UNAME
 export HOSTNAME
 
 declare -r TMP_PATH="$PATH" 2>/dev/null
@@ -43,7 +48,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-PS1="\u@\H:\w\$ "
+PS1='\u@\H:\w\$ '
 
 #if profile should not be loaded for some reason
 if ! declare -f source_file &>/dev/null; then
@@ -52,12 +57,15 @@ if ! declare -f source_file &>/dev/null; then
         local exp_owner="$2"
 
         if [[ -f "$file_name" ]]; then
-            if [[ -z "$exp_owner" ]]; then
-                source "$file_name"
-            else
-                local owner="$(get_own "$file_name")"
-                [[ $exp_owner == $owner ]] && source "$file_name"
+            if ! [[ -z "$exp_owner" ]]; then
+                local owner
+                owner="$(get_own "$file_name")"
+                if ! [[ $exp_owner == "$owner" ]]; then
+                    return 1
+                fi
             fi
+            # shellcheck disable=SC1090
+            source "$file_name"
             return 0
         else
             return 1
@@ -80,15 +88,15 @@ source_file ~/.bashrc.d/all/commands
 source_file ~/.bashrc.d/all/history
 
 ###THIS HOST
-source_file ~/.bashrc.d/host/$hostname
+source_file ~/.bashrc.d/host/"$hostname"
 
 ###THIS USER
 source_file ~/.bashrc.d/user/private
 source_file ~/.bashrc.d/user/ssh_common
-source_file ~/.bashrc.d/user/ssh_$hostname
+source_file ~/.bashrc.d/user/"ssh_$hostname"
 
-source_file ~/.bashrc.d/user/$USER
-source_file ~/.bashrc.d/user/${USER}_$hostname
+source_file ~/.bashrc.d/user/"$USER"
+source_file ~/.bashrc.d/user/"${USER}_$hostname"
 
 
 export PATH="$TMP_PATH"												#define GUARD
