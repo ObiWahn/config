@@ -20,7 +20,7 @@ export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
 
 ### formatted output #############################################{{{
 _o_symbol_section(){
-    local fill_symbol="${1:-'-'}"; shift
+    local fill_symbol="${1:--}"; shift
     local title="$*"
 
     local width=80
@@ -337,7 +337,7 @@ _o_execute_bash(){
 }
 
 export -f _o_execute_show _o_ignore _o_check_cmd _o_need_cmd
-export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure
+export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure _o_assert_calc
 export -f _o_need_okx _o_assertx _o_assert_nzx _o_ensurex _o_assert_calcx
 export -f _o_execute_bash
 ### execute - end ################################################}}}

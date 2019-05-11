@@ -80,6 +80,7 @@ add_to_head_of_PATH ~/.bin_safe/sudo
 add_to_head_of_PATH ~/.bin_safe
 
 add_to_tail_of_PATH /usr/opt/scripts
+add_to_tail_of_PATH ~/.local/bin
 add_to_tail_of_PATH ~/.cargo/bin
 add_to_tail_of_PATH ~/.stack
 add_to_tail_of_PATH ~/.stack/bin
