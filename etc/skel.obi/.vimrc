@@ -1,6 +1,9 @@
 " Configuration file for vim
 " vim:expandtab:foldmethod=marker:foldlevel=0:tw=0
 
+" fix ui language
+set langmenu=en_US.UTF-8
+
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")
   source /etc/vim/vimrc.local
@@ -105,21 +108,24 @@ let g:vikiOpenUrlWith_ANY    = "silent !firefox %{URL}"
 let g:vikiOpenFileWith_html  = "silent !firefox %{FILE}"
 let g:vikiOpenFileWith_ANY   = "silent !start %{FILE}"
 
-
-
-
 " -----------------------------------------------------------
 " GUI / WINDOWS / MAC
 
 set guifont=DejaVu\ Sans\ Mono\ Bold\ 16
-
 if has('win32')
-    set dir=~/_vim_swp
-    set backupdir=~/_vim_backup
-    set viewdir=~/_vim_view
+    language messages en_US.UTF-8
     set encoding=utf8
-    set viminfo='20,\"100,:20,%,n~/_viminfo
+    set langmenu=en_US.UTF-8
+    set guioptions-=m "remove menu bar
+    set guioptions-=T "remove toolbar
+    set guioptions-=r "remove right-hand scroll bar
+    set guioptions-=L "remove left-hand scroll bar
     set guifont=DejaVu_Sans_Mono:h16:b:cANSI
+    set runtimepath+=~/_vim
+    set dir=~/_vim_swp
+    set viewdir=~/_vim_view
+    set backupdir=~/_vim_backup
+    set viminfo='20,\"100,:20,%,n~/_viminfo
 elseif has("unix")
     let s:uname = system("uname")
     if s:uname == "Darwin\n"
@@ -128,8 +134,6 @@ elseif has("unix")
     "enable 256 colors for airline
     "set t_Co=256
 endif
-
-
 
 " -----------------------------------------------------------
 " Set Standard Appearance
@@ -161,9 +165,6 @@ set sidescroll=4
 "splitting
 set splitbelow
 set splitright
-
-
-
 
 " -----------------------------------------------------------
 " COLOR SETTING
@@ -264,10 +265,10 @@ call matchadd("todo","XXX")
 " WhiteSpaces
 
 " Show trailing whitespace:
-:match ExtraWhitespace /\s\+$/
+":match ExtraWhitespace /\s\+$/
 
 " Show trailing whitepace and spaces before a tab:
-":match ExtraWhitespace /\s\+$\| \+\ze\t/
+:match ExtraWhitespace /\s\+$\| \+\ze\t/
 
 " Show tabs that are not at the start of a line:
 ":match ExtraWhitespace /[^\t]\zs\t\+/
