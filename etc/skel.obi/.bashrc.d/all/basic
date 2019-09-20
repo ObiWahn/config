@@ -149,6 +149,7 @@ if (( UID != 0 )); then
     alias ifconfig='/sbin/ifconfig'
     alias poweroff='sudo /sbin/poweroff'
     alias halt='sudo /sbin/poweroff'
+    alias mmpv='mpv -no-audio'
 fi
 
 
