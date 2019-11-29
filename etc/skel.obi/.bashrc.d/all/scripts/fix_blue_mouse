@@ -1,0 +1,28 @@
+#!/bin/bash
+
+bluetoothctl connect CD:62:2F:4D:A2:3A
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "Coordinate Transformation Matrix" 1.0 0.0 0.0 \
+                                       0.0 1.0 0.0 \
+                                       0.0 0.0 1.0
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "Coordinate Transformation Matrix" 8.0 0.0 0.0 \
+                                       0.0 8.0 0.0 \
+                                       0.0 0.0 1.0
+
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "libinput Accel Speed" 0
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "libinput Accel Speed" 0.0
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "libinput Accel Speed Default" 0
+
+xinput --set-prop "pointer:ThinkPad X1 Mouse" \
+    "libinput Accel Speed Default" 0.0
+
+xinput --list-props "pointer:ThinkPad X1 Mouse"
