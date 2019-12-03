@@ -1,0 +1,113 @@
+#!/bin/bash
+
+#https://unix.stackexchange.com/questions/251243/what-do-a-notify-send-notification-category-hint-and-version-parameters-mean
+
+debug=false
+
+time_normal=300
+sleep_time=$time_normal
+
+sound="/usr/lib/libreoffice/share/gallery/sounds/beam.wav"
+sound="/usr/share/iagno/sounds/gameover.ogg"
+icon_path="/usr/share/icons/Adwaita/48x48/legacy/"
+
+check_battery(){
+    local state=""
+    local percentage=""
+
+    local data="$(upower -i /org/freedesktop/UPower/devices/battery_BAT0)"
+    data=$(sed -n '/\(state\|percentage\)/s/\( \|%\)//gp' <<< "$data")
+
+    local key
+    local value
+
+    while IFS=: read -r key value _; do
+
+        if [[ $key == "state" ]]; then
+            state="$value"
+        fi
+
+        if [[ $key == "percentage" ]]; then
+            percentage="$value"
+        fi
+
+    done <<< "$data"
+
+    if $debug; then
+        echo "state: $state at $percentage%"
+    fi
+
+    if [[ -z $state || -z $percentage ]]; then
+        echo "could not parse values"
+        exit 1
+    fi
+
+    if [[ $state != "discharging" ]]; then
+        return $time_normal
+    fi
+
+    local level="normal"
+    local expire_time=""
+    local hint=""
+
+    if (( percentage < 5 )); then
+        level="critical"
+        sleep_time=5
+        expire_time=$(( (sleep_time + 3) * 1000 ))
+        icon="${icon_path}battery-caution.png"
+        hint+="string:sound-file:$sound"
+    elif (( percentage < 10 )); then
+        level="critical"
+        sleep_time=30
+        expire_time=$(( (sleep_time + 3) * 1000 ))
+        icon="${icon_path}battery-caution.png"
+        hint+="string:sound-file:$sound"
+    elif (( percentage < 20 )); then
+        level="normal"
+        sleep_time=$time_normal
+        expire_time=$(( time_normal * 1000 ))
+        icon="${icon_path}battery-low.png"
+    elif (( percentage < 80 )); then
+        #test here
+        level="low"
+        sleep_time=$time_normal
+        return
+    else
+        sleep_time=$time_normal
+        return $time_normal
+    fi
+
+    cmd=(
+        '/usr/bin/notify-send'
+        --urgency "$level"
+        --category "device"
+        --icon="$icon"
+    )
+
+    if [[ -n $hint ]]; then
+        cmd+=( "--hint=$hint" )
+    fi
+
+    if [[ -n $expire_time ]]; then
+        cmd+=( "--expire-time=$expire_time" )
+    fi
+
+    cmd+=(
+        "Battery low"
+        "Battery level is ${percentage}%!"
+    )
+
+    "${cmd[@]}"
+
+    return $sleep_time
+}
+
+if [[ $1 == "test" ]]; then
+    debug=true
+    check_battery
+else
+    while :; do
+        check_battery
+        sleep $sleep_time
+    done
+fi
