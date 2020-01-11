@@ -15,6 +15,10 @@ set runtimepath+=~/.vim
 " all folds should be closed
 " open the folds with: zo / zR
 
+"ale
+"let g:ale_completion_enabled = 1
+"let g:deoplete#enable_at_startup = 1
+
 "enable pathogen plugin
 if filereadable(expand("~/.vim/autoload/pathogen.vim"))
     runtime! autoload/pathogen.vim
@@ -888,7 +892,7 @@ let g:calendar_diary= '~/.vim_diary'
 runtime ftplugin/man.vim
 
 for file in [ 'obi.vim', 'obi-keys.vim'
-          \ , 'airline.vim', 'clang.vim'
+          \ , 'airline.vim', 'clang.vim', 'rust.vim'
           \ , 'snipmate.vim', 'ctrlp-search.vim'
           \ , 'dispatch.vim', 'youcompleteme.vim'
           \ ]

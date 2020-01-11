@@ -187,8 +187,13 @@ docker_image_rm_all(){
     docker rmi $(docker images --all -q)
 }
 
+docker_volume_rm_all(){
+    docker volume rm $(docker volume ls -q)
+}
+
 docker_total_reset(){
     docker_stop_all      && \
+    docker_volume_all    && \
     docker_rm_all        && \
     docker_image_rm_all
 }

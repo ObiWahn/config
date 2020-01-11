@@ -1,0 +1,9 @@
+#!/bin/bash
+set -u
+to=$1
+
+rsync -avh --partial --progress \
+    --exclude '*bundle-available-github/YouCompleteMe*' \
+    --exclude '*YouCompleteMe/ycmd-obi' \
+    --delete \
+    ~/.vim/ ${USER}@${to}:.vim/
