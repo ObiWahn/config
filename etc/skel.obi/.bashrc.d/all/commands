@@ -11,6 +11,14 @@ disable_lid(){
 
 export -f unrz disable_lid
 
+son() {
+    swaymsg "output * dpms on"
+}
+
+soff() {
+    swaymsg "output * dpms off"
+}
+
 omake(){
     # shellcheck disable=SC2155 # declare and assign in one
     local dir_="$(pwd)"

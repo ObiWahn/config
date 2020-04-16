@@ -31,7 +31,11 @@ source_file(){
             source "$file_name"
         else
             local owner="$(get_own "$file_name")"
-            [[ $exp_owner == $owner ]] && source "$file_name"
+            if [[ $exp_owner == $owner ]]; then
+                source "$file_name"
+            else
+                echo "$file_name not owned by $exp_owner! Not sourcing file!"
+            fi
         fi
         return 0
     else
