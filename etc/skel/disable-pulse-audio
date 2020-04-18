@@ -1,0 +1,4 @@
+#!/bin/bash
+
+systemctl mask --user --now pulseaudio.service
+systemctl mask --user --now pulseaudio.socket
