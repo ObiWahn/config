@@ -79,25 +79,35 @@ show_locale(){
 ###############################################################################
 # grep
 
-alias grep='/bin/grep --colour'
-alias bgrep='/bin/grep --binary-files=text'
-alias egrep='/bin/egrep --colour --binary-files=text'
+grep() {
+    /bin/grep --colour "$@"
+}
+
+bgrep() {
+    /bin/grep --binary-files=text "$@"
+}
+egrep() {
+    /bin/grep -E --colour --binary-files=text "$@"
+}
 
 gps(){
+    cmd=(
+        "/bin/grep"
+        "-E"
+        "--colour"
+    )
     # grep for process
     # shellcheck disable=SC2009 # use pgrep instead grepping ps
     # shellcheck disable=SC2196 # egrep not standard
     ps aux | \
-    grep -v "egrep --colour --binary-files=text" | \
-    egrep --colour --binary-files=text "$@"
+    grep -v "${cmd[@]}" | \
+    "${cmd[@]}" "$@"
 }
 
 o_pscg(){ ps xawf -eo pid,user,cgroup,args; }
 o_gpscg(){
     # shellcheck disable=SC2196
-    pscg | \
-    grep -v "egrep --colour --binary-files=text" | \
-    egrep --colour --binary-files=text "$@"
+    pscg | gps "$@"
 }
 
 ###############################################################################

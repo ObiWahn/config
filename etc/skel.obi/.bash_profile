@@ -102,6 +102,7 @@ if [ -f $userdirs ]; then
     owner="$(get_own "$userdirs")"
 	[[ $owner = "root" ]] && source $userdirs
 
+    export XDG_CONFIG_HOME
     export XDG_DESKTOP_DIR
     export XDG_DOWNLOAD_DIR
     export XDG_TEMPLATES_DIR

@@ -87,9 +87,9 @@ set gdefault             " Set 'g' substitute flag on.
 " SAVE & BACKUP
 set autowrite            " Automatically save before commands like :next and :make
 set nobackup             " Don't keep a backup file
-set dir=~/.vim_swp       " swap directory
-set backupdir=~/.vim_backup
-set viewdir=~/.vim_view
+set dir=~/.vim/directories/swap       " swap directory
+set backupdir=~/.vim/directories/backup
+set viewdir=~/.vim/directories/views
 
 " Tell vim to remember certain things when we exit
 "  '10  :  marks will be remembered for up to 10 previously edited files
@@ -97,7 +97,7 @@ set viewdir=~/.vim_view
 "  :20  :  up to 20 lines of command-line history will be remembered
 "  %    :  saves and restores the buffer list
 "  n... :  where to save the viminfo files
-set viminfo='20,\"100,:20,%,n~/.viminfo
+set viminfo='20,\"100,:20,%,n~/.vim/directories/info
 "set history=50           " keep 50 lines of command line history
 
 "" Folding
