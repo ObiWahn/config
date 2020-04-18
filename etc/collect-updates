@@ -11,3 +11,5 @@ done <<HERE
 /etc/skel/     ./skel/
 /etc/skel.obi/ ./skel.obi/
 HERE
+git clean -fdxn
+git diff --stat
