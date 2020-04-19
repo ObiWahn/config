@@ -4,7 +4,7 @@ current_shell="$(readlink -f /bin/sh)"
 target_shell='/bin/bash'
 
 if [[ $current_shell != $target_shell ]]; then
-    echo "setting $target_shell as default shell"
-    rm /bin/sh
-    ln -s $target_shell /bin/sh
+    rm /bin/sh && \
+    ln -s $target_shell /bin/sh || \
+    echo "failed to set $target_shell as default shell"
 fi
