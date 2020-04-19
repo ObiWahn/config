@@ -9,7 +9,7 @@ while read source target; do
     rsync -avh --partial --progress "$source" "$target"
     chown -R "$user:$user" "${target}"
 done <<HERE
-./skel/      /etc/skel/
-./skel.obi/  /etc/skel.obi/
+./skel/         /etc/skel/
+./skel.obi/     /etc/skel.obi/
 ./cron.hourly/  /etc/cron.hourly/
 HERE
