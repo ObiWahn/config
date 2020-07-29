@@ -200,9 +200,9 @@ docker_volume_rm_all(){
 }
 
 docker_total_reset(){
-    docker_stop_all      && \
-    docker_volume_all    && \
-    docker_rm_all        && \
+    docker_stop_all         && \
+    docker_volume_rm_all    && \
+    docker_rm_all           && \
     docker_image_rm_all
 }
 
