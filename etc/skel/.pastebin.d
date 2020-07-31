@@ -1,1 +1,1 @@
-../skel.obi/.pastebin.d/
+/etc/skel.obi/.pastebin.d
