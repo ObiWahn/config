@@ -267,35 +267,38 @@ call matchadd("todo","XXX")
 
 " ----
 " WhiteSpaces
+augroup WhiteSpaces
+    autocmd!
 
-" Show trailing whitespace:
-":match ExtraWhitespace /\s\+$/
+    " Show trailing whitespace:
+    ":match ExtraWhitespace /\s\+$/
 
-" Show trailing whitepace and spaces before a tab:
-:match ExtraWhitespace /\s\+$\| \+\ze\t/
+    " Show trailing whitepace and spaces before a tab:
+    autocmd BufReadPost,BufNewFile * :match ExtraWhitespace /\s\+$\| \+\ze\t/
 
-" Show tabs that are not at the start of a line:
-":match ExtraWhitespace /[^\t]\zs\t\+/
+    " Show tabs that are not at the start of a line:
+    ":match ExtraWhitespace /[^\t]\zs\t\+/
 
-" Show spaces used for indenting (so you use only tabs for indenting).
-":match ExtraWhitespace /^\t*\zs \+/
+    " Show spaces used for indenting (so you use only tabs for indenting).
+    ":match ExtraWhitespace /^\t*\zs \+/
 
-" Switch off :match highlighting.
-":match
+    " Switch off :match highlighting.
+    ":match
 
-"If you do not understand - it is not meant for you:P
-":match ExtraWhitespace /\s\+\%#\@<!$/
-":match ExtraWhitespace / \+\ze\t/
-":syn match ExtraWhitespace /\s\+$/ contained
-":nnoremap <Leader>wf :match Normal         /^\s* \s*\<Bar> \s\+\%#\@<!$<CR>
-":syn match ExtraWhitespace ~^\s\s\+~
-":match ExtraWhitespace ~\s\+$~
-":match ExtraWhitespace ~\( \+\ze\t\)\|\(\s\+\%#\@<!$\)~
+    "If you do not understand - it is not meant for you:P
+    ":match ExtraWhitespace /\s\+\%#\@<!$/
+    ":match ExtraWhitespace / \+\ze\t/
+    ":syn match ExtraWhitespace /\s\+$/ contained
+    ":nnoremap <Leader>wf :match Normal         /^\s* \s*\<Bar> \s\+\%#\@<!$<CR>
+    ":syn match ExtraWhitespace ~^\s\s\+~
+    ":match ExtraWhitespace ~\s\+$~
+    ":match ExtraWhitespace ~\( \+\ze\t\)\|\(\s\+\%#\@<!$\)~
 
-" Show leading whitespace that includes spaces, and trailing whitespace.
-":autocmd BufWinEnter * syn match ExtraWhitespace /^\s* \s*\|\s\+$/
+    " Show leading whitespace that includes spaces, and trailing whitespace.
+    ":autocmd BufWinEnter * syn match ExtraWhitespace /^\s* \s*\|\s\+$/
 
-" -----
+    " -----
+augroup END "WhiteSpaces
 
 
 
