@@ -19,6 +19,17 @@ soff() {
     swaymsg "output * dpms off"
 }
 
+xsudo(){
+    user="$1"
+    shift
+    xauth extract - $DISPLAY | \
+        sudo -u "$user" xauth -f /home/"$user"/.Xauthority merge -
+    xhost +si:localuser:"$user"
+    sudo -u "$user" -i "$@"
+}
+
+export -f xsudo
+
 omake(){
     # shellcheck disable=SC2155 # declare and assign in one
     local dir_="$(pwd)"
