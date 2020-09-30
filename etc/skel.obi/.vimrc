@@ -30,6 +30,8 @@ endif
 " -----------------------------------------------------------
 " Set Standard Behaviour
 
+" also match '<' and '>' as brackets
+set matchpairs+=<:>
 
 " Use Vim defaults instead of 100% vi compatibility
 set nocompatible
