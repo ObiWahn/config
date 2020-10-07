@@ -177,7 +177,7 @@ vim(){
     #if [[ -d /usr/share/vim-youcompleteme ]]; then
     #    rm -fr ~/.vim/bundle/git-YouCompleteMe
     #fi
-    /usr/bin/vim -p "$@"
+    $_o_system_vim -p "$@"
 }
 
 vimcpp(){

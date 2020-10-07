@@ -35,12 +35,14 @@ vim(){
 
 ## Enable color support of ls and also add handy aliases
 case $(uname) in
-    Linux)
+    Linux*|Darwin*)
         eval "$(TERM=xterm dircolors -b)"
         alias ls='ls --color=always -h'
     ;;
-    Darwin)
-        alias ls='ls -G -h'
+    #Darwin*)
+        #alias ls='ls -G -h'
+    #;;
+    *)
     ;;
 esac
 
@@ -80,19 +82,19 @@ show_locale(){
 # grep
 
 grep() {
-    /bin/grep --colour "$@"
+    ${_o_system_gnu_grep} --colour "$@"
 }
 
 bgrep() {
-    /bin/grep --binary-files=text "$@"
+    ${_o_system_gnu_grep} --binary-files=text "$@"
 }
 egrep() {
-    /bin/grep -E --colour --binary-files=text "$@"
+    ${_o_system_gnu_grep} -E --colour --binary-files=text "$@"
 }
 
 gps(){
     cmd=(
-        "/bin/grep"
+        "${_o_system_gnu_grep}"
         "-E"
         "--colour"
     )
@@ -154,25 +156,25 @@ screen(){
 }
 
 tmuxa(){
-    /usr/bin/tmux attach-session -t "$@"
+    ${_o_system_tmux} attach-session -t "$@"
 }
 
 tmux(){
     if [[ $1 == "-r" ]]; then
         shift
-        /usr/bin/tmux attach-session "$@"
+        ${_o_system_tmux} attach-session "$@"
     elif [[ $1 == "main" ]]; then
         tmuxa "$@"
     elif [[ $1 == "-ls" ]]; then
         shift
-        /usr/bin/tmux list-sessions "$@"
+        ${_o_system_tmux} list-sessions "$@"
     else
-        /usr/bin/tmux "$@"
+        ${_o_system_tmux} "$@"
     fi
 }
 
 tmain(){
-    /usr/bin/tmux attach-session -t main "$@"
+    ${_o_system_tmux} attach-session -t main "$@"
 }
 
 ###############################################################################

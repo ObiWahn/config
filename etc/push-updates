@@ -5,9 +5,16 @@ cd "$script_dir"
 while read source target; do
     echo "#####################################################################"
     user="$(stat --printf %G "$target")"
+    group="$user"
+    if [[ ${_o_os_mac} == "yes" ]]; then
+        if [[ $(id -u) == "0" ]]; then
+            user="root"
+            group="staff"
+        fi
+    fi
     echo "copy ${source} -> ${target} ($user)"
     rsync -avh --partial --progress "$source" "$target"
-    chown -R "$user:$user" "${target}"
+    chown -R "$user:$group" "${target}"
 done <<HERE
 ./skel/         /etc/skel/
 ./skel.obi/     /etc/skel.obi/

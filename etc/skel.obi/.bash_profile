@@ -9,17 +9,45 @@ export LD_LIBRARY_PATH=""
 
 umask 022
 
+_o_os_linux="no"
+_o_os_mac="no"
+_o_os_windows="no"
+
+_o_system_tmux=/usr/bin/tmux
+_o_system_vim=/usr/bin/vim
+_o_system_gnu_grep=/bin/grep
+_o_system_gnu_readlink=/bin/readlink
+
 case "$(uname)" in
     Linux)
-        get_own(){ stat -c %U "$(readlink -f "$1")"; };
+        _o_os_linux="yes"
+        get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
     ;;
     Darwin)
-        get_own(){ stat -f %Su "$1"; };
+        _o_os_mac="yes"
+        _o_system_tmux=/usr/local/bin/tmux
+        _o_system_vim=/usr/local/bin/vim
+        _o_system_gnu_grep=/usr/local/opt/grep/libexec/gnubin/grep
+        _o_system_gnu_readlink=/usr/local/opt/coreutils/libexec/gnubin/readlink
+        PATH="/usr/local/opt/coreutils/libexec/gnubin/:$PATH"
+        get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
+        #get_own(){ stat -f %Su "$1"; };
     ;;
     *)
-        get_own(){ echo "unknown"; };
+        echo "unsupported os"
+        get_own(){ echo "unknown user"; };
     ;;
 esac
+
+export _o_os_linux
+export _o_os_mac
+export _o_os_windows
+
+export _o_system_tmux
+export _o_system_vim
+export _o_system_gnu_grep
+export _o_system_gnu_readlink
+
 
 ## source file
 source_file(){
@@ -44,7 +72,9 @@ source_file(){
 }
 export -f source_file
 
-source_file ~/.bashrc.d/all/bash_lib
+if (( $BASH_VERSINFO >= 4 )); then
+    source_file ~/.bashrc.d/all/bash_lib
+fi
 
 ## find free xdisplay
 xdisplay(){
@@ -120,5 +150,12 @@ export LD_LIBRARY_PATH=""
 source_file ~/.bashrc.d/user/profile_common              root
 source_file ~/.bashrc.d/user/profile_${USER}             root
 source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME%%.*} root
+
+if [[ ${_o_os_mac} == yes ]]; then
+    for file in /usr/local/etc/obi.profile.d/*; do
+        source_file "$file"
+    done
+fi
+
 
 export OBI_PROFILE_SOURCED=true

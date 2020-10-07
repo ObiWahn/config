@@ -80,8 +80,10 @@ source_file ~/.bashrc.d/all/prompt
 hostname="${HOSTNAME%%.*}"
 ###ALL USER
 if ! $OBI_BASH_LIB_SOURCED; then
-    echo "something went wrong - sourceing bash lib"
-    source_file ~/.bashrc.d/all/bash_lib
+    if (( $BASH_VERSINFO >= 4 )); then
+        echo "something went wrong - sourceing bash lib"
+        source_file ~/.bashrc.d/all/bash_lib
+    fi
 fi
 source_file ~/.bashrc.d/all/basic
 source_file ~/.bashrc.d/all/commands

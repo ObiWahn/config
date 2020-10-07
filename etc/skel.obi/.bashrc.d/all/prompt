@@ -81,7 +81,7 @@ prompt=(
 )
 
 ## change for plain terminal
-if [[ $(tty) = /dev/tty* ]]; then
+if [[ $(tty) = /dev/tty* ]] && [[ ${_o_os_linux} = "yes" ]]; then
     ## prompt symbol: use $ instead of »
     prompt[$((${#prompt[@]}-1))]='\[${_ret_cols[!$_exit]}\]\$\[$_reset\] '
     ## prefix battery status
