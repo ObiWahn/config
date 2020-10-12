@@ -4,7 +4,9 @@
 # shellcheck shell=bash
 [ -z "$PS1" ] && return
 
-if ! $OBI_PROFILE_SOURCED; then
+OBI_IN_BASHRC=true
+
+if [[ $OBI_PROFILE_SOURCED != true ]]; then
     echo "profile not sourced"
     # shellcheck disable=SC1090
     . "$HOME/.bash_profile"
@@ -103,3 +105,5 @@ source_file ~/.bashrc.d/user/"${USER}_$hostname"
 
 export PATH="$TMP_PATH"												#define GUARD
 export LD_LIBRARY_PATH=""
+
+unset OBI_IN_BASHRC
