@@ -90,6 +90,7 @@ fi
 source_file ~/.bashrc.d/all/basic
 source_file ~/.bashrc.d/all/commands
 source_file ~/.bashrc.d/all/history
+source_file ~/.bashrc.d/user/history
 
 ###THIS HOST
 source_file ~/.bashrc.d/host/"$hostname"
