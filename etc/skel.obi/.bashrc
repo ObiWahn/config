@@ -5,19 +5,22 @@
 [ -z "$PS1" ] && return
 
 OBI_IN_BASHRC=true
-
+obi_late_profile=false
 if [[ $OBI_PROFILE_SOURCED != true ]]; then
     echo "profile not sourced"
+    obi_late_profile=true
     # shellcheck disable=SC1090
     . "$HOME/.bash_profile"
 fi
+
+declare -r path_saved="$PATH" 2>/dev/null
+declare -r ld_library_path_saved="${LD_LIBRARY_PATH:-}" 2>/dev/null
 
 UNAME="$(uname)"
 
 export UNAME
 export HOSTNAME
 
-declare -r TMP_PATH="$PATH" 2>/dev/null
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -104,7 +107,13 @@ source_file ~/.bashrc.d/user/"$USER"
 source_file ~/.bashrc.d/user/"${USER}_$hostname"
 
 
-export PATH="$TMP_PATH"												#define GUARD
-export LD_LIBRARY_PATH=""
+export PATH="$path_saved"												#define GUARD
+
+if [[ $obi_late_profile == 'true' ]]; then
+    export LD_LIBRARY_PATH="$ld_library_path_saved"
+else
+    unset LD_LIBRARY_PATH
+    export -n LD_LIBRARY_PATH
+fi
 
 unset OBI_IN_BASHRC

@@ -155,6 +155,6 @@ fi
 export OBI_PROFILE_SOURCED=true
 
 # include .bashrc if it exists
-if [[ $OBI_IN_BASHRC != true && -f ~/.bashrc ]]; then
+if [[ ${OBI_IN_BASHRC:-false} != true && -f ~/.bashrc ]]; then
     source ~/.bashrc
 fi
