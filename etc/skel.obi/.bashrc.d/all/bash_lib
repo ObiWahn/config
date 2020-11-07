@@ -3,6 +3,41 @@
 # vim:filetype=sh foldmethod=marker foldmarker="{{{,}}}"
 # set -o vi
 
+### main #########################################################{{{
+## source file
+source_file(){
+    local file_name="$1"
+    local exp_owner="$2"
+
+    if [[ -f "$file_name" ]]; then
+        if [[ -z "$exp_owner" ]]; then
+            source "$file_name"
+        else
+            local owner="$(get_own "$file_name")"
+            if [[ $exp_owner == $owner ]]; then
+                source "$file_name"
+            else
+                echo "$file_name not owned by $exp_owner! Not sourcing file!"
+            fi
+        fi
+        return 0
+    else
+        return 1
+    fi
+}
+export -f source_file
+
+## find free xdisplay
+xdisplay(){
+    local disp=0
+    while [ -e "/tmp/.X${disp}-lock" ]; do
+	    disp=$(( $disp + 1 ))
+    done
+    echo $disp
+}
+export -f xdisplay
+### main - end ###################################################{{{
+
 ### colors #######################################################{{{
 # set colors
 _i=0
@@ -14,7 +49,6 @@ unset _i _c
 
 _bold=$(tput bold)
 _reset=$(tput sgr0)
-
 export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
 ### colors - end #################################################{{{
 
@@ -141,15 +175,9 @@ _o_spin_cmd(){
 
     return $status
 }
-
-export -f _o_symbol_section _o_section _o_echo_padd _o_echo_long
-export -f _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
-export -f _o_spin_cmd
 ### formatted output - end #######################################}}}
 
 ### debug ########################################################{{{
-export OBI_DEBUG=5
-export OBI_DEBUG_ACTION='sleep'
 _o_debug(){
     #
     # This function displays debug information
@@ -200,14 +228,10 @@ _o_debug_action(){
         return 1
     fi
 }
-
-export _o_debug_ _o_debug_action
 ### debug end ####################################################}}}
 
 
 ### error ########################################################{{{
-export OBI_ERROR_ACTION='ask'
-
 _o_say() { echo "${_white}${OBI_PREFIX:-""}$*${_reset}"; }
 _o_err(){ echo; echo -n "${_bold}${_red}Error: "; _o_say "$@"; echo -n "${_reset}"; }
 _o_success(){ echo; echo -n "${_bold}${_green}Success: "; _o_say "$@"; echo -n "${_reset}"; }
@@ -257,10 +281,6 @@ done
 _o_ask_to_contx(){
     _o_ask_yn || return 1
 }
-
-
-export -f _o_say _o_success _o_err _o_nerr _o_ferr _o_ask_yn
-export -f _o_ferrx _o_ask_to_contx
 ### error - end ##################################################}}}
 
 ### execute commands #############################################{{{
@@ -335,11 +355,6 @@ _o_execute_bash(){
     bash -c "$*"
     return $?
 }
-
-export -f _o_execute_show _o_ignore _o_check_cmd _o_need_cmd
-export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure _o_assert_calc
-export -f _o_need_okx _o_assertx _o_assert_nzx _o_ensurex _o_assert_calcx
-export -f _o_execute_bash
 ### execute - end ################################################}}}
 
 ### file commands ################################################{{{
@@ -387,143 +402,8 @@ _o_wait_for_file_event_bash(){
         done
     )
 }
-
-export -f _o_wait_for_file_event _o_wait_for_file_event_bash
 ### file commands - end ##########################################{{{
 
+source_file ~/.bashrc.d/all/bash_lib_exports
 
-### system info ##################################################{{{
-_o__page_size_bytes="$(getconf PAGESIZE)"
-_o__page_size_KiB="$((_o__page_size_bytes / 1024))"
-
-# shellcheck disable=SC2155
-_o_get_meminfo_statm(){
-    #most reliable
-    local size="$(     awk '{print $1}' < "/proc/$1/statm" )"
-    local resident="$( awk '{print $2}' < "/proc/$1/statm" )"
-    local shared="$(   awk '{print $3}' < "/proc/$1/statm" )"
-    echo "VmSize_KiB $((size * _o__page_size_KiB)) VmRss_KiB $((resident * _o__page_size_KiB)) RssFile+RssShmem_KiB $((shared * _o__page_size_KiB))"
-}
-
-# shellcheck disable=SC2155
-_o_get_meminfo_top(){
-    #slow
-    local line="$( top -p "$1" -n1 -b | tail -n1 )"
-    local VIRT="$( awk '{print $5}' <<< "$line" )"
-    local RES="$(  awk '{print $6}' <<< "$line" )"
-    local SHR="$(  awk '{print $7}' <<< "$line" )"
-    echo "VmSize $VIRT VmRss $RES SHR $SHR (no fixed units)"
-}
-
-# shellcheck disable=SC2155
-_o_get_meminfo_ps(){
-    local line="$(ps -p "$1" -o rss,vsz | tail -n1)"
-    local RSS="$( awk '{print $1}' <<< "$line" )"
-    local VSZ="$( awk '{print $2}' <<< "$line" )"
-    echo "VmSize_KiB $VSZ VmRss_kB $RSS"
-    # KiB though manpage claims other wise"
-}
-
-
-# shellcheck disable=SC2155
-_o_get_meminfo_stat(){
-    local vsize="$( awk '{print $23}' < "/proc/$1/stat" )"
-    local rss="$( awk '{print $24}' < "/proc/$1/stat" )"
-    echo "VmSize_KiB $(( vsize / 1024 )) VmRss_KiB $(( rss * _o__page_size_KiB ))"
-}
-
-# shellcheck disable=SC2155
-_o_get_meminfo_status(){
-	local VmSize="$(grep VmSize "/proc/$1/status" | awk '{print $2}'  )"
-	local VmRSS="$(grep VmRSS "/proc/$1/status" | awk '{print $2}'  )"
-	echo "VmSize_KiB $VmSize VmRss_KiB $VmRSS"
-    # claims kB
-}
-### system info - end ############################################}}}
-
-
-### remote commands ##############################################{{{
-_o_execute_remote(){
-    local interpreter="$1"
-    local user_at_host="$2"
-    local realscript="$3"
-    shift 3
-
-    local -a args
-
-    local count=0
-    for arg in "$@"; do
-      args[count]=$(printf '%q' "$arg")
-      ((count++))
-    done
-
-    # shellcheck disable=SC2029 # i must be expanded on the remote side
-    ssh "$user_at_host" "cat | ${interpreter} /dev/stdin" "${args[@]}" < "$realscript"
-}
-export -f _o_execute_remote
-### remote commands - end ########################################}}}
-
-
-### array ########################################################{{{
-#http://stackoverflow.com/questions/7442417/how-to-sort-an-array-in-bash
-declare BSORT=()
-_o_bubble_sort(){
-    # @param [ARGUMENTS]...
-    #
-    # Sort all positional arguments and store them in global array BSORT.
-    # Without arguments sort this array. Return the number of iterations made.
-    #
-    # Bubble sorting lets the heaviest element sink to the bottom.
-    #
-    # @usage
-    #
-    # BSORT=(a c b 'z y' 3 5)
-    # bubble_sort
-    # echo ${BSORT[@]}
-    (($# > 0)) && BSORT=("$@")
-    local j=0 ubound=$((${#BSORT[*]} - 1))
-    while ((ubound > 0))
-    do
-        local i=0
-        while ((i < ubound))
-        do
-            if [ "${BSORT[$i]}" \> "${BSORT[$((i + 1))]}" ]
-            then
-                local t="${BSORT[$i]}"
-                BSORT[$i]="${BSORT[$((i + 1))]}"
-                BSORT[$((i + 1))]="$t"
-            fi
-            ((++i))
-        done
-        ((++j))
-        ((--ubound))
-    done
-    #echo $j
-}
-
-_o_sort(){
-    local arr=( "$@" )
-    _o_bubble_sort "${arr[@]}"
-}
-
-_o_sort_echo(){
-    local arr=( "$@" )
-    _o_sort "${arr[@]}"
-    echo "${BSORT[@]}"
-}
-
-_o_get_last(){
-    local arr=( "$@" )
-    echo "${arr[${#arr[@]}-1]}"
-}
-
-_o_sort_get_last(){
-    local arr=( "$@" )
-    _o_bubble_sort "${arr[@]}"
-    echo "${BSORT[${#BSORT[@]}-1]}"
-}
-
-export BSORT
-export -f _o_bubble_sort _o_sort _o_sort_echo _o_get_last _o_sort_get_last
-### array - end ##################################################}}}
 export OBI_BASH_LIB_SOURCED=true

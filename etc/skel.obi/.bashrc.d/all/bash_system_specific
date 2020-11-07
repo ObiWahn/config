@@ -1,0 +1,37 @@
+#!/bin/bash
+# Copyright - 2010-2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
+# vim:filetype=sh foldmethod=marker foldmarker="{{{,}}}"
+# set -o vi
+
+export _o_os_linux="no"
+export _o_os_mac="no"
+export _o_os_windows="no"
+
+export _o_system_tmux=/usr/bin/tmux
+export _o_system_vim=/usr/bin/vim
+export _o_system_gnu_grep=/bin/grep
+export _o_system_gnu_readlink=/bin/readlink
+
+
+case "$(uname)" in
+    Linux)
+        _o_os_linux="yes"
+        get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
+    ;;
+    Darwin)
+        _o_os_mac="yes"
+        _o_system_tmux=/usr/local/bin/tmux
+        _o_system_vim=/usr/local/bin/vim
+        _o_system_gnu_grep=/usr/local/opt/grep/libexec/gnubin/grep
+        _o_system_gnu_readlink=/usr/local/opt/coreutils/libexec/gnubin/readlink
+        PATH="/usr/local/opt/coreutils/libexec/gnubin/:$PATH"
+        get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
+        #get_own(){ stat -f %Su "$1"; };
+    ;;
+    *)
+        echo "unsupported os"
+        get_own(){ echo "unknown user"; };
+    ;;
+esac
+
+export -f get_own

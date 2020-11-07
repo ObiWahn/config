@@ -1,0 +1,35 @@
+#!/bin/bash
+# Copyright - 2010-2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
+# vim:filetype=sh foldmethod=marker foldmarker="{{{,}}}"
+# set -o vi
+
+### formatted output - end #######################################}}}
+export -f _o_symbol_section _o_section _o_echo_padd _o_echo_long
+export -f _o_del_word _o_write_n_x_times _o_write_n_x_times_newline
+export -f _o_spin_cmd
+### formatted output - end #######################################}}}
+
+### debug ########################################################{{{
+export OBI_DEBUG=5
+export OBI_DEBUG_ACTION='sleep'
+export -f _o_debug _o_debug_action
+### debug end ####################################################}}}
+
+### error ########################################################{{{
+export OBI_ERROR_ACTION='ask'
+export -f _o_say _o_success _o_err _o_nerr _o_ferr _o_ask_yn
+export -f _o_ferrx _o_ask_to_contx
+### error - end ##################################################}}}
+
+### execute commands #############################################{{{
+export -f _o_execute_show _o_ignore _o_check_cmd _o_need_cmd
+export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure _o_assert_calc
+export -f _o_need_okx _o_assertx _o_assert_nzx _o_ensurex _o_assert_calcx
+export -f _o_execute_bash
+### execute - end ################################################}}}
+
+### file commands ################################################{{{
+export -f _o_wait_for_file_event _o_wait_for_file_event_bash
+### file commands - end ##########################################{{{
+
+export OBI_BASH_LIB_SOURCED=true

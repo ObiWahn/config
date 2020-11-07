@@ -21,7 +21,6 @@ UNAME="$(uname)"
 export UNAME
 export HOSTNAME
 
-
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -54,42 +53,10 @@ if ! shopt -oq posix; then
 fi
 
 PS1='\u@\H:\w\$ '
-
-#if profile should not be loaded for some reason
-if ! declare -f source_file &>/dev/null; then
-    source_file(){
-        local file_name="$1"
-        local exp_owner="$2"
-
-        if [[ -f "$file_name" ]]; then
-            if ! [[ -z "$exp_owner" ]]; then
-                local owner
-                owner="$(get_own "$file_name")"
-                if ! [[ $exp_owner == "$owner" ]]; then
-                    return 1
-                fi
-            fi
-            # shellcheck disable=SC1090
-            source "$file_name"
-            return 0
-        else
-            return 1
-        fi
-    }
-    export -f source_file
-fi
-
 source_file ~/.bashrc.d/all/prompt
-
 #use short host names
 hostname="${HOSTNAME%%.*}"
-###ALL USER
-if ! $OBI_BASH_LIB_SOURCED; then
-    if (( $BASH_VERSINFO >= 4 )); then
-        echo "something went wrong - sourceing bash lib"
-        source_file ~/.bashrc.d/all/bash_lib
-    fi
-fi
+
 source_file ~/.bashrc.d/all/basic
 source_file ~/.bashrc.d/all/commands
 source_file ~/.bashrc.d/all/history
