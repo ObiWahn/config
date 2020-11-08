@@ -135,3 +135,56 @@ _o_sort_get_last(){
 export BSORT
 export -f _o_bubble_sort _o_sort _o_sort_echo _o_get_last _o_sort_get_last
 ### array - end ##################################################}}}
+
+### fun ##########################################################{{{
+_o_ssh_over_nodes(){
+    # ssh connection over multipe hops
+    local cmd
+    local hosts=( "$@" )
+    local hosts_len="${#hosts[@]}"
+    cmd="ssh ${hosts[$(( hosts_len - 1 ))]}"
+    for (( i=${#hosts[@]}-2; i>=0; i=i-1 )); do
+        cmd="ssh -t ${hosts[$i]} $cmd"
+    done
+    $cmd
+}
+
+_o_countdown(){
+    local min=${1:-5}
+    local sec=$((60 * min))
+    # shellcheck disable=SC2155 # declare and assign in one
+    local clear_eol=$(tput el)
+
+    echo "countdown from $min:00 min "
+    echo
+
+    while (( sec > 0 )); do
+        min_left=$((sec/60))
+
+        if ((min_left >= 3)); then
+            printf -v padded_sec "%02d" "$((sec%60))"
+            out="$min_left:$padded_sec"
+            unit=" min"
+        else
+            out="$sec"
+            unit=" sec"
+        fi
+
+        tput bold
+        tput setaf 1
+        echo -n "     "
+        echo -n "$out"
+        tput sgr0
+        echo -n "$unit"
+        echo -n " left"
+
+        sleep 1
+        sec=$((sec - 1))
+
+        #write_x_n_times $'\b' $((${#out}+${#unit}))
+        echo -ne "\\r$clear_eol"
+    done
+    echo
+}
+export -f _o_ssh_over_nodes _o_countdown
+### fun - end ####################################################{{{

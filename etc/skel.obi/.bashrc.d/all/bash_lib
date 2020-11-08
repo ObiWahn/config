@@ -26,16 +26,6 @@ source_file(){
     fi
 }
 export -f source_file
-
-## find free xdisplay
-xdisplay(){
-    local disp=0
-    while [ -e "/tmp/.X${disp}-lock" ]; do
-	    disp=$(( $disp + 1 ))
-    done
-    echo $disp
-}
-export -f xdisplay
 ### main - end ###################################################{{{
 
 ### colors #######################################################{{{
