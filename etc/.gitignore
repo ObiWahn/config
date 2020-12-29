@@ -1,1 +1,8 @@
 skel.obi/.bashrc.d/host/*
+skel.obi/setup-scripts/*old
+
+skel/.profile
+skel/.mkshrc
+
+skel.obi/.xinitrc*
+skel/.xinitrc*
