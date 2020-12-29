@@ -97,7 +97,22 @@ alias ssh_md5='ssh -o FingerprintHash=md5'
 alias ssh-show-fpr='ssh-keygen -lv -f'
 ### ssh - end ####################################################{{{
 
-### ssl - end ####################################################{{{
+### fzf ##########################################################{{{
+export FZF_FLAGS="-i"
+fzff(){ fzf "${FZF_FLAGS}" "$@"; }
+fps() { ps aux | tail -n +2 | fzff | awk '{ print $2 }'; }
+fpkill() { kill "$@" $(fps); }
+fpk() { fpkill "$@"; }
+fports() { find_port_clean | fzff; }
+frg() { rg "$@" | fzff; }
+
+#path should not have spaces
+fpath() { find $(path) -perm -o=x | fzff; }
+rgbashrc() { rg $@ ~/.bash*; }
+
+### fzf - end ####################################################{{{
+
+### ssl ##########################################################{{{
 o_adm_ssl_cert_decode(){
     local cfile="$1"
     openssl x509 -in "$cfile" -text -noout
