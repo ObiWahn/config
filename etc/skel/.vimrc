@@ -1,1 +1,1 @@
-/etc/skel.obi/.vimrc
+.vim/vimrc
