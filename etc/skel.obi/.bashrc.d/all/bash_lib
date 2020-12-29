@@ -26,7 +26,7 @@ source_file(){
     fi
 }
 export -f source_file
-### main - end ###################################################{{{
+### main - end ###################################################}}}
 
 ### colors #######################################################{{{
 # set colors
@@ -40,7 +40,7 @@ unset _i _c
 _bold=$(tput bold)
 _reset=$(tput sgr0)
 export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
-### colors - end #################################################{{{
+### colors - end #################################################}}}
 
 ### formatted output #############################################{{{
 _o_symbol_section(){
@@ -392,7 +392,7 @@ _o_wait_for_file_event_bash(){
         done
     )
 }
-### file commands - end ##########################################{{{
+### file commands - end ##########################################}}}
 
 source_file ~/.bashrc.d/all/bash_lib_exports
 

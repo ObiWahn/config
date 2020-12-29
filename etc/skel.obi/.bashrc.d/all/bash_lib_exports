@@ -30,6 +30,6 @@ export -f _o_execute_bash
 
 ### file commands ################################################{{{
 export -f _o_wait_for_file_event _o_wait_for_file_event_bash
-### file commands - end ##########################################{{{
+### file commands - end ##########################################}}}
 
 export OBI_BASH_LIB_SOURCED=true
