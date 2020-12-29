@@ -1,1 +1,1 @@
-.vim/vimrc
+/etc/skel.obi/.vim/vimrc-single-file

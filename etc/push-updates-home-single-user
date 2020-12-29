@@ -3,7 +3,16 @@ script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd "$script_dir"
 
 while read source; do
+    target=~/"${source#*/}"
+
     case "$source" in
+        *vimrc-single-file)
+            if [[ -e ~/.vim/vimrc ]]; then
+                echo "ignoring (has ~/.vim/vimrc) $source"
+                continue
+            fi
+            target=~/.vimrc
+        ;;
         skel\.obi*)
             echo "good"
         ;;
@@ -13,7 +22,6 @@ while read source; do
         ;;
     esac
 
-    target=~/"${source#*/}"
     echo "copy ./${source} -> ${target}"
     rsync -avh --partial --progress "$source" "$target"
 done < <(git ls-tree --name-only -r HEAD)

@@ -1,2 +1,7 @@
 #!/bin/sh
+
 rsync -rlv /etc/skel/ ~
+
+if [[ -e ~/.vim/vimrc ]]; then
+    rm ~/.vimrc
+fi
