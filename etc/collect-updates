@@ -10,6 +10,7 @@ while read source target; do
 done <<HERE
 /etc/skel/     ./skel/
 /etc/skel.obi/ ./skel.obi/
+/etc/cron.hourly/ ./cron.hourly/
 HERE
 git clean -fdxn
 git diff --stat
