@@ -2,8 +2,16 @@
 script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd "$script_dir"
 
-while read source target; do
-    echo "#####################################################################"
+while read source; do
+    case "$source" in
+        *skel*|*cron*)
+        ;;
+        *)
+            echo "ignoring $source"
+            continue
+        ;;
+    esac
+    target="/etc/$source"
     user="$(stat --printf %G "$target")"
     group="$user"
     if [[ ${_o_os_mac} == "yes" ]]; then
@@ -12,12 +20,7 @@ while read source target; do
             group="staff"
         fi
     fi
-    echo "copy ${source} -> ${target} ($user)"
-    rsync -avh --partial --progress "$source" "$target"
+    echo "copy ./${source} -> ${target} ($user)"
+    rsync -avh --partial --progress "$source" "$target" && \
     chown -R "$user:$group" "${target}"
-done <<HERE
-./skel/         /etc/skel/
-./skel.obi/     /etc/skel.obi/
-./cron.hourly/  /etc/cron.hourly/
-HERE
-#< <(git ls-tree --name-only -r HEAD) #only files in version contorl
+done < <(git ls-tree --name-only -r HEAD)
