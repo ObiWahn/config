@@ -28,7 +28,7 @@ case "$(uname)" in
         _o_system_gnu_readlink=/usr/local/opt/coreutils/libexec/gnubin/readlink
         PATH="/usr/local/opt/coreutils/libexec/gnubin/:$PATH"
         get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
-        find_port(){ lsof -n -i -P; }
+        find_port(){ sudo /usr/sbin/lsof -n -i -P; }
         find_port_clean(){ find_port "$@" 2>&1 | tail -n +3; }
         #get_own(){ stat -f %Su "$1"; };
     ;;

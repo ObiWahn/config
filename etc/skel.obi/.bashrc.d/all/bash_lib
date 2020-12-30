@@ -74,12 +74,15 @@ _o_echo_padd(){
     shift 2
     ## get aditional arguments
     while : ; do
-        if [[ $1 == @(-n|-e|-ne) ]]; then
-            args+="$1 "
-            shift
-        else
-            break
-        fi
+        case $1 in
+            -n|-e|-ne)
+                args+="$1 "
+                shift
+            ;;
+            *)
+                break
+            ;;
+        esac
     done
 
     msg="$* "
