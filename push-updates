@@ -13,7 +13,7 @@ while read source; do
     esac
 
     target="/$source"
-    user="$(stat --printf %G "$target")"
+    user="$(stat --printf %G "$target" 2>/dev/null)"
     group="$user"
 
     if [[ ${_o_os_mac} == "yes" ]]; then
@@ -36,8 +36,11 @@ while read source; do
     fi
 
     echo "copy ./${source} -> ${target} ($user)"
-
     rsync -avhq "$source" "$target" || { echo "operation failed"; exit 1; }
-    chown -R "$user:$group" "${target}"
+
+    if [[ -n "$user" ]]; then
+        chown -R "$user:$group" "${target}"
+    fi
+
     echo
 done < <(git ls-tree --name-only -r HEAD)
