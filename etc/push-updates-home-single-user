@@ -23,5 +23,7 @@ while read source; do
     esac
 
     echo "copy ./${source} -> ${target}"
-    rsync -avh --partial --progress "$source" "$target"
+    rsync -avh --partial --progress \
+          --rsync-path "mkdir -p ${target%/*} && rsync" \
+          "$source" "$target" || { echo "operation failed"; exit 1; }
 done < <(git ls-tree --name-only -r HEAD)
