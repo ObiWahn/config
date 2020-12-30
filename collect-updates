@@ -8,9 +8,9 @@ while read source target; do
     echo "copy ${source} -> ${target}"
     rsync -avh --partial --progress "$source" "$target"
 done <<HERE
-/etc/skel/     ./skel/
-/etc/skel.obi/ ./skel.obi/
-/etc/cron.hourly/ ./cron.hourly/
+/etc/skel/         ./etc/skel/
+/etc/skel.obi/     ./etc/skel.obi/
+/etc/cron.hourly/  ./etc/cron.hourly/
 HERE
 git clean -fdxn
 git diff --stat

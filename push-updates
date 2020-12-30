@@ -12,7 +12,7 @@ while read source; do
         ;;
     esac
 
-    target="/etc/$source"
+    target="/$source"
     user="$(stat --printf %G "$target")"
     group="$user"
 
@@ -31,7 +31,7 @@ while read source; do
 
     if [[ -h $source ]]; then
         #copy symlinks into dir
-        echo "discoverd link switch target to dir"
+        echo "discoverd symlink switch target to dir"
         target="$targetdir"
     fi
 

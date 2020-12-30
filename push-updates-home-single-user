@@ -3,25 +3,25 @@ script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd "$script_dir"
 
 while read source; do
-    target=~/"${source#*/}"
-
     case "$source" in
         *vimrc-single-file)
             if [[ -e ~/.vim/vimrc ]]; then
-                echo "ignoring (has ~/.vim/vimrc) $source"
+                echo "ignoring (has ~/.vim/vimrc) $source" >&2
                 continue
             fi
             target=~/.vimrc
         ;;
-        skel\.obi*)
-            echo "good"
+        *skel\.obi*)
+            echo "good $source"
         ;;
         *)
-            echo "ignoring $source"
+            echo "ignoring $source" >&2
             continue
         ;;
     esac
 
+    #remove etc/skel.obi/<target> and prefix with $HOME
+    target=~/"${source#*/*/}"
 
     targetdir="${target%/*}"
     if ! [[ -d "$targetdir" ]];then
