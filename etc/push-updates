@@ -11,18 +11,33 @@ while read source; do
             continue
         ;;
     esac
+
     target="/etc/$source"
     user="$(stat --printf %G "$target")"
     group="$user"
+
     if [[ ${_o_os_mac} == "yes" ]]; then
         if [[ $(id -u) == "0" ]]; then
             user="root"
             group="staff"
         fi
     fi
+
+    targetdir="${target%/*}"
+    if ! [[ -d "$targetdir" ]];then
+    echo "mkdir -p $targetdir"
+        mkdir -p "$targetdir"
+    fi
+
+    if [[ -h $source ]]; then
+        #copy symlinks into dir
+        echo "discoverd link switch target to dir"
+        target="$targetdir"
+    fi
+
     echo "copy ./${source} -> ${target} ($user)"
-    rsync -avh --partial --progress \
-          --rsync-path "mkdir -p ${target%/*} && rsync" \
-          "$source" "$target" || { echo "operation failed"; exit 1; }
+
+    rsync -avhq "$source" "$target" || { echo "operation failed"; exit 1; }
     chown -R "$user:$group" "${target}"
+    echo
 done < <(git ls-tree --name-only -r HEAD)
