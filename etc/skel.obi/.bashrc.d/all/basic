@@ -36,7 +36,7 @@ vim(){
 ## Enable color support of ls and also add handy aliases
 case $(uname) in
     Linux*|Darwin*)
-        eval "$(TERM=xterm dircolors -b)"
+        eval "$(TERM=xterm dircolors -b | sed 's/ow=[^:]*/ow=01;93;93/')"
         alias ls='ls --color=always -h'
     ;;
     #Darwin*)
