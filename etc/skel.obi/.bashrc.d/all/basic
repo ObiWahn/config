@@ -4,15 +4,15 @@
 alias cd..='cd ..'
 
 rsync-pro(){
-    rsync -avhH --partial --progress "$@"
+    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --progress "$@"
 }
 
 rsync-pro2(){
-    rsync -avhH --partial --progress --info=progress2 --no-inc-recursive "$@"
+    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --info=progress2 --no-inc-recursive --progress "$@"
 }
 
 rsync-pro2short(){
-    rsync -avhH --partial --info=progress2 --no-inc-recursive "$@"
+    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --info=progress2 --no-inc-recursive "$@"
 }
 
 
