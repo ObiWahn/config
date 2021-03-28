@@ -258,30 +258,52 @@ cmake_obi() { ocmake "$@"; }
 export -f ocmake cmake_obi
 ### build - end ##################################################}}}
 
+### audit ########################################################{{{
+audit() {
+    aureport -au -i --summary --success
+    aureport -au -i --success
+    aureport -au -i --summary --failed
+    aureport -au -i --failed
+}
+### audit - end###################################################}}}
+
 ### docker #######################################################{{{
+
+docker_get_all_container(){
+    docker ps --all -q
+}
+
+docker_get_all_images(){
+    docker images --all -q
+}
+
+docker_get_all_volumes(){
+    docker volume ls -q
+}
+
 docker_stop_all(){
     # shellcheck disable=SC2046
-    docker stop $(docker ps --all -q)
+    docker stop $(docker_get_all_container)
 }
 
 docker_rm_all(){
     # shellcheck disable=SC2046
-    docker rm $(docker ps --all -q)
+    docker rm $(docker_get_all_container)
 }
 
 docker_image_rm_all(){
     # shellcheck disable=SC2046
-    docker rmi $(docker images --all -q)
+    docker rmi $(docker_get_all_container)
 }
 
 docker_volume_rm_all(){
-    docker volume rm $(docker volume ls -q)
+    docker volume rm $(docker_get_all_volumes)
 }
 
 docker_total_reset(){
     docker_stop_all
-    docker_volume_rm_all
     docker_rm_all
+    docker_volume_rm_all
     docker_image_rm_all
 }
 
