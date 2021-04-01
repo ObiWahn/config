@@ -76,6 +76,7 @@ prompt=(
     '${_svn_PROMPT+$_svn_PROMPT\n}'
     '${_go_PROMPT+$_go_PROMPT\n}'
     '${TOOLCHAIN_PREFIX+$TOOLCHAIN_PREFIX\n}'
+    '${DOCKER_HOST+DOCKER_HOST=$DOCKER_HOST\n}'
     '${PROMPT_EXTRA+$PROMPT_EXTRA\n}'
     '\[${_ret_cols[!$_exit]}\]»\[$_reset\] '
 )
