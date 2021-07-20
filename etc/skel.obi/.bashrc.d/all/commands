@@ -311,6 +311,11 @@ docker_image_rm_dangling(){
     # shellcheck disable=SC2046
     docker rmi $(docker images -f "dangling" -q)
 }
+
+docker-desktop-host() {
+    docker run -it --rm --privileged --pid=host alpine:edge nsenter -t 1 -m -u -n -i sh
+}
+
 ### docker - end #################################################}}}
 
 ### system info ##################################################{{{
