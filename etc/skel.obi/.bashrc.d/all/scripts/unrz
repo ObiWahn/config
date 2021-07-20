@@ -46,6 +46,10 @@ unrz_file(){
 
         # filter for known formats
         case $file in
+            *.7z)
+                local target_dir="${file%\.7z}"
+                local ext_cmd="7z x"
+                ;;
             *zip)
                 local target_dir="${file%\.zip}"
                 local ext_cmd="unzip"
