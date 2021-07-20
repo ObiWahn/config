@@ -15,6 +15,9 @@ rsync-pro2short(){
     rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --info=progress2 --no-inc-recursive "$@"
 }
 
+rsync-fat(){
+    rsync -rtvhH --modify-window=3 --progress --partial-dir=rsync-partial-dir "$@"
+}
 
 ip-external(){
     curl ifconfig.co
