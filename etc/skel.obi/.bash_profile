@@ -38,6 +38,7 @@ add_to_tail_of_PATH ~/.stack
 add_to_tail_of_PATH ~/.stack/bin
 add_to_tail_of_PATH ~/.cabal/bin
 add_to_tail_of_PATH ~/.node_modules/bin
+add_to_tail_of_PATH ~/.go/bin
 
 userdirs=~/.config/user-dirs.dirs
 if [ -f $userdirs ]; then
