@@ -186,7 +186,7 @@ o_adm_ssl_cert_hash_adv(){
 ### ssl ##########################################################{{{
 
 ### build ########################################################{{{
-omake(){
+obuild(){
     # shellcheck disable=SC2155 # declare and assign in one
     local dir_="$(pwd)"
     local builddir_="${dir_##*/}-build"
@@ -201,29 +201,51 @@ omake(){
 
     local found_build_dir=false
 
-    local d real_build_dir
+    local d real_build_dir build_type
     for d in "${candidates[@]}"; do
-        if [[ -d "$d" ]]; then
-            cd "$d" && found_build_dir=true && cd - || return
-            real_build_dir="$d"
-            echo "Using directory $real_build_dir for building"
-            sleep 1
-            break
+        [[ -d "$d" ]] || continue
+        cd "$d" || continue
+
+        if [[ -f Makefile ]] || [[ -f makefile ]]; then
+            build_type=make
+        elif [[ -f build.ninja ]]; then
+            build_type=ninja
+        else
+            continue
         fi
+
+
+        real_build_dir="$d"
+        echo "Using directory $real_build_dir for building"
+
+        cd -
+        sleep 1
+        break
+
     done
 
-    if ! $found_build_dir ; then
+    if [[ -z build_type ]] ; then
         echo "can not change into suitable build dir!";
         return 42;
     fi
 
-    (
-        cd "$real_build_dir" && \
-        make -j "$(nproc)" "$@"
-    )
+    case $build_type in
+
+        make)
+            ( cd "$real_build_dir" &&  make -j "$(nproc)" "$@" )
+        ;;
+        ninja)
+            ( cd "$real_build_dir" && ninja "$@" )
+        ;;
+        *)
+            echo "no suitable build system";
+        ;;
+    esac
 }
-make_obi() { omake "$@"; }
-export -f omake make_obi
+omake() { obuild "$@"; }
+make_obi() { obuild "$@"; }
+ninja_obi() { obuild "$@"; }
+export -f obuild omake make_obi ninja_obi
 
 ocmake(){
     [[ -f CMakeLists.txt ]] || { echo "no CMakeLists.txt"; return; }
@@ -438,8 +460,4 @@ youtube-stream(){
     "${my_mplayer[@]}"
 }
 export -f youtube-stream
-
-obi-update-home(){
-    rsync -rlv /etc/skel/ ~
-}
 ### user - end ###################################################}}}
