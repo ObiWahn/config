@@ -204,11 +204,10 @@ obuild(){
     local d real_build_dir build_type
     for d in "${candidates[@]}"; do
         [[ -d "$d" ]] || continue
-        cd "$d" || continue
 
-        if [[ -f Makefile ]] || [[ -f makefile ]]; then
+        if [[ -f "$d/Makefile" ]] || [[ -f "$d/makefile" ]]; then
             build_type=make
-        elif [[ -f build.ninja ]]; then
+        elif [[ -f "$d/build.ninja" ]]; then
             build_type=ninja
         else
             continue
@@ -218,8 +217,7 @@ obuild(){
         real_build_dir="$d"
         echo "Using directory $real_build_dir for building"
 
-        cd -
-        sleep 1
+        sleep 2
         break
 
     done
@@ -232,7 +230,7 @@ obuild(){
     case $build_type in
 
         make)
-            ( cd "$real_build_dir" &&  make -j "$(nproc)" "$@" )
+            ( cd "$real_build_dir" &&  make "$@" )
         ;;
         ninja)
             ( cd "$real_build_dir" && ninja "$@" )
@@ -242,10 +240,8 @@ obuild(){
         ;;
     esac
 }
-omake() { obuild "$@"; }
-make_obi() { obuild "$@"; }
-ninja_obi() { obuild "$@"; }
-export -f obuild omake make_obi ninja_obi
+omake() { obuild -j "$(nproc)" "$@"; }
+export -f obuild omake
 
 ocmake(){
     [[ -f CMakeLists.txt ]] || { echo "no CMakeLists.txt"; return; }
