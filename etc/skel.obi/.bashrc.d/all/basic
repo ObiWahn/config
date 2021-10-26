@@ -69,6 +69,12 @@ alias mosh='/usr/bin/mosh --server="env MOSH_SERVER_SIGNAL_TMOUT=86400 mosh-serv
 
 alias bashcheck='shellcheck -x -s bash'
 
+
+alias upload-pipe='curl -F"file=@-" https://0x0.st'
+upload-file() {
+    curl -F"file=@$1" https://0x0.st
+}
+
 ###############################################################################
 #admin stuff
 alias path='echo -e ${PATH//:/\\n}'
