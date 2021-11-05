@@ -86,6 +86,9 @@ else
     export -f source_file
 fi
 
+# HOST PROFILE - They must be owned by root
+source_file ~/.bashrc.d/host/profile                         root
+
 # USER PROFILE - They must be owned by root
 source_file ~/.bashrc.d/user/profile_common                  root
 source_file ~/.bashrc.d/user/profile_${USER}                 root
