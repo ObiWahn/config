@@ -59,6 +59,8 @@ fi
 export PATH
 export LD_LIBRARY_PATH=""
 
+SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"; export SSH_AUTH_SOCK
+
 if (( $BASH_VERSINFO >= 4 )); then
     source ~/.bashrc.d/all/bash_lib
 else
