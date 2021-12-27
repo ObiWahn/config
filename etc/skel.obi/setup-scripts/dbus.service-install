@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+mkdir -p "$HOME/.config/systemd/user/"
+cp ./dbus.socket         "$HOME/.config/systemd/user/"
+cp ./dbus-broker.service "$HOME/.config/systemd/user/"
+
+systemctl --user daemon-reload
+
+#systemctl --user enable dbus.socket
+#systemctl --user start  dbus.socket
+
+systemctl --user enable dbus-broker.service
+systemctl --user start  dbus-broker.service
