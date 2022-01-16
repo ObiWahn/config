@@ -65,7 +65,7 @@ alias di='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,ntfs'
 alias dia='/usr/bin/di -h -s -n -t -f Mfpbst -I ext3,ext4,fuseblk,fuse,tmpfs'
 alias dio='/usr/bin/di -h -s -n -t -f MfpbstO -I ext3,ext4,fuseblk,ntfs'
 
-alias mosh='/usr/bin/mosh --server="env MOSH_SERVER_SIGNAL_TMOUT=86400 mosh-server"'
+alias mosh="$_o_system_mosh --server='env MOSH_SERVER_SIGNAL_TMOUT=86400 /usr/bin/mosh-server'"
 
 alias bashcheck='shellcheck -x -s bash'
 

@@ -11,6 +11,8 @@ export _o_system_tmux=/usr/bin/tmux
 export _o_system_vim=/usr/bin/vim
 export _o_system_gnu_grep=/bin/grep
 export _o_system_gnu_readlink=/bin/readlink
+export _o_system_mosh=/usr/bin/mosh
+export _o_system_mosh_server=/usr/bin/mosh_server
 
 
 case "$(uname)" in
@@ -26,6 +28,8 @@ case "$(uname)" in
         _o_system_vim=/usr/local/bin/vim
         _o_system_gnu_grep=/usr/local/opt/grep/libexec/gnubin/grep
         _o_system_gnu_readlink=/usr/local/opt/coreutils/libexec/gnubin/readlink
+        _o_system_mosh=/usr/local/bin/mosh
+        _o_system_mosh_server=/usr/local/bin/mosh_server
         PATH="/usr/local/opt/coreutils/libexec/gnubin/:$PATH"
         get_own(){ stat -c %U "$(${_o_system_gnu_readlink} -f "$1")"; };
         find_port(){ sudo /usr/sbin/lsof -n -i -P; }
