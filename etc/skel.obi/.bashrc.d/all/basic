@@ -53,13 +53,14 @@ case $(uname) in
     ;;
 esac
 
+alias ls='/bin/ls -h --color=always'
 alias la='ls -a'
 alias ll='ls -l'
 alias l='ls -s'
 alias lla='ls -s -all'
 alias less='less -R'
-alias dir='ls --color=auto --format=vertical'
-alias vdir='ls --color=auto --format=long'
+alias dir='ls --format=vertical'
+alias vdir='ls --format=long'
 
 du(){ /usr/bin/du -h "$@" ; }
 bigdirs(){ /usr/bin/du -hsx -- * | sort -rh | head -10; }
@@ -95,14 +96,23 @@ show_locale(){
 # grep
 
 grep() {
-    ${_o_system_gnu_grep} --colour "$@"
+    ${_o_system_gnu_grep} --color "$@"
 }
 
 bgrep() {
     ${_o_system_gnu_grep} --binary-files=text "$@"
 }
+
 egrep() {
-    ${_o_system_gnu_grep} -E --colour --binary-files=text "$@"
+    ${_o_system_gnu_grep} -E --color --binary-files=text "$@"
+}
+
+rgrep() {
+    ${_o_system_gnu_grep} -r -E --color --binary-files=text "$@"
+}
+
+rgl() {
+    rg --color=always "$@" | less -R
 }
 
 gps(){
