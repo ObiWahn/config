@@ -33,6 +33,10 @@ vim(){
     /usr/bin/vim -p "$@"
 }
 
+fvim(){
+    /usr/bin/vim "$(fzf)" "$@"
+}
+
 ###############################################################################
 ### FileSystem and Dir Size Commands
 
