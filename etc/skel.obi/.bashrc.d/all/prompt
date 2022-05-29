@@ -101,7 +101,8 @@ prompt_extra(){
 }
 
 # various system vars
-PROMPT_COMMAND='_exit=$?; history -a'
+#PROMPT_COMMAND='_exit=$?; history -a; history -c; history -r'
+PROMPT_COMMAND='_exit=$?; history -a; history -n'
 if type __git_ps1 &>/dev/null && ((UID != 0)); then
     PROMPT_COMMAND+='; unset _git_PROMPT; [[ -n "${NOGIT+set}" ]] || _get_git_PROMPT'
 fi

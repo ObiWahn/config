@@ -1,15 +1,30 @@
 # Copyright - 2010 - Jan Christoph Uhde <Jan@UhdeJC.com>
 ## History Commands
+HISTFILESIZE=500          # increase history file size (default is 500)
+
+shopt -s cmdhist
+export HISTFILE=~/.cache/.bash_history # replace with /dev/null
+export HISTIGNORE="&:ls:exit:su*"
+
+# append to the history file, don't overwrite it
+shopt -s histappend
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # don't overwrite GNU Midnight Commander's setting of `ignorespace'.
 #HISTCONTROL=$HISTCONTROL${HISTCONTROL+:}ignoredups
 # ... or force ignoredups and ignorespace
-HISTCONTROL=ignoreboth
+HISTCONTROL=ignoreboth # leading space hides commands from history & dupes are irgnored
 
-# append to the history file, don't overwrite it
-shopt -s histappend
+## hstr configuration
+alias hh=hstr                    # hh to be alias for hstr
+export HSTR_CONFIG=hicolor       # get more colors
+export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 
-shopt -s cmdhist
-export HISTFILE=/dev/null
-#export HISTIGNORE="&:ls:exit:[ \t]*:su*"
+# done in prompt file
+# ensure synchronization between Bash memory and history file
+#export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+
+# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
+if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
+# if this is interactive shell, then bind 'kill last command' to Ctrl-x k
+if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi
