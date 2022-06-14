@@ -53,7 +53,7 @@ case $(uname) in
     ;;
 esac
 
-alias ls='/bin/ls -h --color=always'
+alias ls="$_o_system_ls -h --color=always"
 alias la='ls -a'
 alias ll='ls -l'
 alias l='ls -s'

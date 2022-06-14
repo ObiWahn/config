@@ -7,6 +7,7 @@ export _o_os_linux="no"
 export _o_os_mac="no"
 export _o_os_windows="no"
 
+export _o_system_ls=/usr/bin/ls
 export _o_system_tmux=/usr/bin/tmux
 export _o_system_vim=/usr/bin/vim
 export _o_system_gnu_grep=/bin/grep
@@ -24,6 +25,11 @@ case "$(uname)" in
     ;;
     Darwin)
         _o_os_mac="yes"
+        if [[ -x /usr/local/bin/gls ]]; then
+            _o_system_ls=/usr/local/bin/gls
+        else
+            _o_system_ls=/bin/ls
+        fi
         _o_system_tmux=/usr/local/bin/tmux
         _o_system_vim=/usr/local/bin/vim
         _o_system_gnu_grep=/usr/local/opt/grep/libexec/gnubin/grep
