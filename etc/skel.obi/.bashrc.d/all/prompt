@@ -34,28 +34,31 @@ _get_batt(){
     fi
 }
 
-# shot git status
+# show git status
+# script source: /etc/bash_completion.d/git-prompt --> /usr/lib/git-core/git-sh-prompt (part of the git package)
 GIT_PS1_SHOWDIRTYSTATE="yes"
 GIT_PS1_SHOWSTASHSTATE="yes"
-GIT_PS1_SHOWUNTRACKEDFILES="yes"
+GIT_PS2_SHOWUNTRACKEDFILES="yes"
 GIT_PS1_SHOWUPSTREAM="auto"
+GIT_PS1_SHOWCONFLICTSTATE="yes"
+GIT_PS1_DESCRIBE_STYLE="branch"
+GIT_PS1_SHOWCOLORHINTS="yes"
 
 _get_git_PROMPT(){
+    unset _git_PROMPT
+    [[ -n "${NOGIT+set}" ]] && return
     _git_PROMPT=$(__git_ps1 "git: %s")
-    if test -z "$_git_PROMPT"; then
-        unset _git_PROMPT
-    fi
 }
 
 source_file /opt/subversion-prompt/subversion-prompt || source_file ~/.bin/subversion-prompt
 
 _get_svn_PROMPT(){
+    unset _svn_PROMPT
     [[ -e .nosvn ]] && return
+    [[ -n "${NOSVN+set}" ]] && return
     _svn_PROMPT=$(__svn_stat)
-    if test -z "$_svn_PROMPT"; then
-        unset _svn_PROMPT
-    else
-    _svn_PROMPT="svn: $_svn_PROMPT"
+    if test -n "$_svn_PROMPT"; then
+        _svn_PROMPT="svn: $_svn_PROMPT"
     fi
 }
 
@@ -72,8 +75,8 @@ prompt=(
     '\[$_user_color\]\u@\[$_reset\]\[$_host_color\]\h\[$_reset\]'
     '\[$_user_color\]:\w\[$_reset\]\n'
     '${debian_chroot+chroot: $debian_chroot}'
-    '${_git_PROMPT+$_git_PROMPT\n}'
-    '${_svn_PROMPT+$_svn_PROMPT\n}'
+    '${_git_PROMPT:+$_git_PROMPT\n}'
+    '${_svn_PROMPT:+$_svn_PROMPT\n}'
     '${_go_PROMPT+$_go_PROMPT\n}'
     '${TOOLCHAIN_PREFIX+$TOOLCHAIN_PREFIX\n}'
     '${DOCKER_HOST+DOCKER_HOST=$DOCKER_HOST\n}'
@@ -102,13 +105,15 @@ prompt_extra(){
 
 # various system vars
 #PROMPT_COMMAND='_exit=$?; history -a; history -c; history -r'
-PROMPT_COMMAND='_exit=$?; history -a; history -n'
+#PROMPT_COMMAND='_exit=$?; history -a; history -n'
+# just append to history
+PROMPT_COMMAND='_exit=$?; history -a'
 if type __git_ps1 &>/dev/null && ((UID != 0)); then
-    PROMPT_COMMAND+='; unset _git_PROMPT; [[ -n "${NOGIT+set}" ]] || _get_git_PROMPT'
+    PROMPT_COMMAND+='; _get_git_PROMPT'
 fi
 
 if type __svn_stat &>/dev/null && ((UID != 0)); then
-    PROMPT_COMMAND+='; unset _svn_PROMPT; [[ -n "${NOSVN+set}" ]] || _get_svn_PROMPT'
+    PROMPT_COMMAND+='; _get_svn_PROMPT'
 fi
 
 if ((UID != 0)); then
