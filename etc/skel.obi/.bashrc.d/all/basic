@@ -76,8 +76,12 @@ alias bashcheck='shellcheck -x -s bash'
 
 
 alias upload-pipe='curl -F"file=@-" https://0x0.st'
+alias upload-txt-pipe='curl "-Ffile=@-;type=text/plain" https://0x0.st'
 upload-file() {
-    curl -F"file=@$1" https://0x0.st
+    curl "-Ffile=@$1" https://0x0.st
+}
+upload-txt() {
+    curl "-Ffile=@$1;type=text/plain" https://0x0.st
 }
 
 ###############################################################################
