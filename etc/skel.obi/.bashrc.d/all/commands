@@ -15,6 +15,8 @@ export -f watchdir
 
 ### vim ##########################################################{{{
 vim(){
+    export TERM
+    TERM=xterm
     $_o_system_vim -p "$@"
 }
 
@@ -251,15 +253,17 @@ ocmake(){
     local builddir_="${dir_##*/}-build"
     local builddirfull_="${dir_}-build"
 
-    local candidates=(
-        "$builddirfull_/current"
-        "$builddirfull_"
-        "$builddir_"
-        'build'
-    )
-
     local build_type="${1:-RelWithDebInfo}"
     shift 1
+
+    local use_tmpfs=false
+    for option in "$@"; do
+        case $option in
+            tmpfs)
+                use_tmpfs=true
+            ;;
+        esac
+    done
 
     mkdir -p "$builddirfull_/$build_type" || { echo "can not create build dir"; return; }
     rm -f "$builddirfull_/current"
