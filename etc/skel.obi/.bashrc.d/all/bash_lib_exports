@@ -25,7 +25,7 @@ export -f _o_ferrx _o_ask_to_contx
 export -f _o_execute_show _o_ignore _o_check_cmd _o_need_cmd
 export -f _o_need_ok  _o_assert _o_assert_nz  _o_ensure _o_assert_calc
 export -f _o_need_okx _o_assertx _o_assert_nzx _o_ensurex _o_assert_calcx
-export -f _o_execute_bash
+export -f _o_execute_bash _o_sleep_until _o_sleep_execute
 ### execute - end ################################################}}}
 
 ### file commands ################################################{{{

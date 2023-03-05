@@ -348,6 +348,22 @@ _o_execute_bash(){
     bash -c "$*"
     return $?
 }
+
+_o_sleep_until() {
+    [[ -z "$*" ]] && return
+    current_epoch=$(date +%s)
+    target_epoch=$(date -d "$*" +%s)
+    sleep_seconds=$(( target_epoch - current_epoch ))
+    sleep $sleep_seconds
+}
+
+_o_sleep_execute() {
+    [[ -z "$*" ]] && return
+    _o_sleep_until "${1}"
+    shift
+    # execute - even if there is no command
+    "$@"
+}
 ### execute - end ################################################}}}
 
 ### file commands ################################################{{{
