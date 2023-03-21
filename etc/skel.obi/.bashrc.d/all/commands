@@ -265,14 +265,14 @@ ocmake(){
         esac
     done
 
-    mkdir -p "$builddirfull_/$build_type" || { echo "can not create build dir"; return; }
+    mkdir -p "$builddirfull_/${build_type,,}" || { echo "can not create build dir"; return; }
     rm -f "$builddirfull_/current"
-    ln -s "$builddirfull_/$build_type" "$builddirfull_/current" || { echo "can not create symlink"; return; }
+    ln -s "$builddirfull_/${build_type,,}" "$builddirfull_/current" || { echo "can not create symlink"; return; }
     [[ -h "$dir_/build_dir" ]] && rm "$dir_/build_dir"
     ln -s "$builddirfull_/current" "$dir_/build_dir"
 
     (
-        cd "$builddirfull_/$build_type" || _o_ferrx "can not cd into build dir"
+        cd "$builddirfull_/${build_type,,}" || _o_ferrx "can not cd into build dir"
         cmake "-DCMAKE_BUILD_TYPE=${build_type}" "$@" "$dir_"
     )
 }
