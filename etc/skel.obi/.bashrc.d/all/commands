@@ -305,33 +305,44 @@ docker_get_all_volumes(){
 
 docker_stop_all(){
     # shellcheck disable=SC2046
-    docker stop $(docker_get_all_container)
+    local container="$(docker_get_all_container)"
+    [[ -n $container ]] && docker stop $contianer
 }
 
-docker_rm_all(){
+docker_rm_all_container(){
     # shellcheck disable=SC2046
-    docker rm $(docker_get_all_container)
+    local container="$(docker_get_all_container)"
+    [[ -n $container ]] && docker rm $container
 }
 
-docker_image_rm_all(){
+docker_rm_all_volumes(){
     # shellcheck disable=SC2046
-    docker rmi $(docker_get_all_container)
+    local volumes="$(docker_get_all_volumes)"
+    [[ -n $volumes ]] && docker volume rm $volumes
 }
 
-docker_volume_rm_all(){
-    docker volume rm $(docker_get_all_volumes)
+docker_rm_all_images(){
+    # shellcheck disable=SC2046
+    local images="$(docker_get_all_images)"
+    [[ -n $images ]] && docker rmi "$(images)"
+}
+
+docker_rm_dangling_images(){
+    # shellcheck disable=SC2046
+    local images="$(docker images --filter "dangling=true" -q)"
+    [[ -n $images ]] && docker rmi $images
 }
 
 docker_total_reset(){
+    echo "stopping all container"
     docker_stop_all
-    docker_rm_all
-    docker_volume_rm_all
-    docker_image_rm_all
-}
-
-docker_image_rm_dangling(){
-    # shellcheck disable=SC2046
-    docker rmi $(docker images -f "dangling" -q)
+    echo "deleting all container"
+    docker_rm_all_container
+    echo "deleting all volumes"
+    docker_rm_all_volumes
+    echo "deleting all images"
+    docker_rm_all_images
+    docker_rm_dangling_images
 }
 
 docker-desktop-host() {
