@@ -20,12 +20,12 @@ rsync-fat(){
 }
 
 ip-external(){
-    curl ifconfig.co
+    curl "$@" ifconfig.co
 }
 
 ip-external-json(){
-    if ! jq . <(curl ifconfig.co/json 2>/dev/null); then
-        curl ifconfig.co/json
+    if ! jq . <(curl "$@" ifconfig.co/json 2>/dev/null); then
+        curl "$@" ifconfig.co/json
     fi
 }
 
