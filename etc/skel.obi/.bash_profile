@@ -98,7 +98,7 @@ source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME%%.*} root
 
 #hack for macos and brew
 if [[ ${_o_os_mac} == yes ]]; then
-    for file in /usr/local/etc/obi.profile.d/*; do
+    for file in /opt/homebrew/etc/obi.profile.d/*; do
         source_file "$file"
     done
 fi

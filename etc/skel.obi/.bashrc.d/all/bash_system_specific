@@ -28,18 +28,18 @@ case "$(uname)" in
     ;;
     Darwin)
         _o_os_mac="yes"
-        if [[ -x /usr/local/bin/gls ]]; then
-            _o_system_ls=/usr/local/bin/gls
+        if [[ -x /opt/homebrew/bin/gls ]]; then
+            _o_system_ls=/opt/homebrew/bin/gls
         else
             _o_system_ls=/bin/ls
         fi
-        _o_system_tmux=/usr/local/bin/tmux
-        _o_system_vim=/usr/local/bin/vim
-        _o_system_gnu_grep=/usr/local/opt/grep/libexec/gnubin/grep
-        _o_system_gnu_readlink=/usr/local/opt/coreutils/libexec/gnubin/readlink
-        _o_system_mosh=/usr/local/bin/mosh
-        _o_system_mosh_server=/usr/local/bin/mosh_server
-        PATH="/usr/local/opt/coreutils/libexec/gnubin/:$PATH"
+        _o_system_tmux=/opt/homebrew/bin/tmux
+        _o_system_vim=/opt/homebrew/bin/vim
+        _o_system_gnu_grep=/opt/homebrew/opt/grep/libexec/gnubin/grep
+        _o_system_gnu_readlink=/opt/homebrew/opt/coreutils/libexec/gnubin/readlink
+        _o_system_mosh=/opt/homebrew/bin/mosh
+        _o_system_mosh_server=/opt/homebrew/bin/mosh_server
+        PATH="/opt/homebrew/opt/coreutils/libexec/gnubin/:$PATH"
 
         find_port(){ sudo /usr/sbin/lsof -n -i -P; }
     ;;
