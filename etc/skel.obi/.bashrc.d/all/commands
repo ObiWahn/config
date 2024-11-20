@@ -64,8 +64,9 @@ export -f disable_lid son soff
 xsudo(){
     user="$1"
     shift
+    local home_dir=$(grep "$user" /etc/passwd | cut -d ":" -f6)
     xauth extract - $DISPLAY | \
-        sudo -u "$user" xauth -f /home/"$user"/.Xauthority merge -
+        sudo -u "$user" xauth -f "$home_dir"/.Xauthority merge -
     xhost +si:localuser:"$user"
     sudo -u "$user" -i "$@"
 }
@@ -460,4 +461,32 @@ youtube-stream(){
     "${my_mplayer[@]}"
 }
 export -f youtube-stream
+
+mv-newer-to()
+{
+    local date=${1:-'yesterday'}
+    local to=$2
+    find . \
+        -type f \
+        -newerct "$date" \
+        ! -iname "*.part" \
+        ! -empty \
+        -exec bash -c \
+            'to=$1; shift; mv -i --debug "$@" "$to"' -- "$to" '{}'  +
+}
+export -f mv-newer-to
+
+mpv-newer()
+{
+    local date=${1:-'yesterday'}
+    local where=${2:-.}
+    find "$where" \
+        -type f \
+        -newerct "$date" \
+        \( -iname "*.mp4" -o -iname "*.mkv" \) \
+        -exec bash -c \
+            'mpv "$@"' -- '{}'  +
+}
+export -f mpv-newer
+
 ### user - end ###################################################}}}
