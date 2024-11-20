@@ -4,19 +4,16 @@
 alias cd..='cd ..'
 
 rsync-pro(){
-    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --progress "$@"
+    rsync -avhH --numeric-ids --progress --partial --partial-dir=rsync-partial-dir "$@"
 }
 
 rsync-pro2(){
-    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --info=progress2 --no-inc-recursive --progress "$@"
+    rsync-pro --info=progress2 --no-inc-recursive "$@"
 }
 
-rsync-pro2short(){
-    rsync -avhH --numeric-ids --partial-dir=rsync-partial-dir --info=progress2 --no-inc-recursive "$@"
-}
 
 rsync-fat(){
-    rsync -rtvhH --modify-window=3 --progress --partial-dir=rsync-partial-dir "$@"
+    rsync -rtvhH --modify-window=3 --progress --partial --partial-dir=rsync-partial-dir "$@"
 }
 
 ip-external(){
