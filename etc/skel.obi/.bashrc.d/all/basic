@@ -20,10 +20,26 @@ ip-external(){
     curl "$@" ifconfig.co
 }
 
+ip4-external(){
+    ip-external -4 "$@"
+}
+
+ip6-external(){
+    ip-external -6 "$@"
+}
+
 ip-external-json(){
     if ! jq . <(curl "$@" ifconfig.co/json 2>/dev/null); then
         curl "$@" ifconfig.co/json
     fi
+}
+
+ip4-external-json(){
+    ip-external-json -4 "$@"
+}
+
+ip6-external-json(){
+    ip-external-json -6 "$@"
 }
 
 vim(){
