@@ -2,6 +2,7 @@
 # Copyright - 2010-2018 - Jan Christoph Uhde <Jan@UhdeJC.com>
 
 alias cd..='cd ..'
+alias rm='rm -I'
 
 rsync-pro(){
     rsync -avhH --numeric-ids --progress --partial --partial-dir=rsync-partial-dir "$@"
