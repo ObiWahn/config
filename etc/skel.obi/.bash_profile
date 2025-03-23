@@ -92,9 +92,11 @@ fi
 source_file ~/.bashrc.d/host/profile                         root
 
 # USER PROFILE - They must be owned by root
-source_file ~/.bashrc.d/user/profile_common                  root
+source_file ~/.bashrc.d/user/profile_local                   root
 source_file ~/.bashrc.d/user/profile_${USER}                 root
 source_file ~/.bashrc.d/user/profile_${USER}_${HOSTNAME%%.*} root
+source_file ~/.bashrc.d/user/profile_shared                  root
+source_file ~/.bashrc.d/user/profile_code                    root
 
 #hack for macos and brew
 if [[ ${_o_os_mac} == yes ]]; then
