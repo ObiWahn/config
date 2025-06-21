@@ -88,7 +88,7 @@ alias mosh="$_o_system_mosh --server='env MOSH_SERVER_SIGNAL_TMOUT=86400 /usr/bi
 
 alias bashcheck='shellcheck -x -s bash'
 
-
+curl() { /usr/bin/curl "$@" ; }
 alias upload-pipe='curl -F"file=@-" https://0x0.st'
 alias upload-txt-pipe='curl "-Ffile=@-;type=text/plain" https://0x0.st'
 upload-file() {
