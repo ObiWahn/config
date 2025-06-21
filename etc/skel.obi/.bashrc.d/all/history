@@ -25,7 +25,7 @@ export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 # ensure synchronization between Bash memory and history file
 #export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 
-has_tiocsti="$(hstr --is-tiocsti)"
+has_tiocsti="$(hstr --is-tiocsti &> /dev/null)"
 if [[ "$has_tiocsti" == "y" ]]; then
     # REQUIRES
     # sysctl -w dev.tty.legacy_tiocsti=1
