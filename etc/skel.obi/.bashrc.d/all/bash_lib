@@ -391,7 +391,7 @@ _o_wait_for_file_event(){
             echo "command: $*"
             sleep 0.1
             "$@"
-            echo
+            echo "### EXIT $?"
             echo "### inotifywait exec - end #########################"
         done
     )
@@ -409,6 +409,7 @@ _o_wait_for_file_event_bash(){
             echo "command: $*"
             sleep 0.1
             _o_execute_bash "$@"
+            echo "### EXIT $?"
             echo "### inotifywait exec #########################"
         done
     )
