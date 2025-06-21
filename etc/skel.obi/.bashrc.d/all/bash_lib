@@ -385,7 +385,8 @@ _o_wait_for_file_event(){
 
         local dir="$1"
         shift
-        while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        #while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
             echo "### inotifywait exec - start #######################"
             echo "command: $*"
             sleep 0.1
@@ -402,7 +403,8 @@ _o_wait_for_file_event_bash(){
         local dir="$1"
         shift
         set -m
-        while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        #while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
+        while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
             echo "### inotifywait exec #########################"
             echo "command: $*"
             sleep 0.1
