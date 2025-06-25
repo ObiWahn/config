@@ -39,7 +39,8 @@ unset _i _c
 
 _bold=$(tput bold)
 _reset=$(tput sgr0)
-export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset
+_ret_cols=("$_bold$_red" "$_bold$_green")
+export _black _red _green _yellow _blue _magenta _cyan _white _bold _reset _ret_cols
 ### colors - end #################################################}}}
 
 ### formatted output #############################################{{{
@@ -382,17 +383,16 @@ _o_wait_for_file_event(){
     # events must be uppper-case
     (
         _o_assert_nz "${2:-""}" "usage: watchdir <directory> <command> [arg ...]"
-
+        local _rc=("$_bold$_red" "$_bold$_green")
         local dir="$1"
         shift
         #while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
         while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
-            echo "### inotifywait exec - start #######################"
+            echo -e "\n$_bold$_white### inotifywait exec - start #######################$_reset\n"
             echo "command: $*"
             sleep 0.1
             "$@"
-            echo "### EXIT $?"
-            echo "### inotifywait exec - end #########################"
+            echo -e "\n$_bold$_white### ${_rc[!$?]}inotifywait exec - end $_bold$_white#########################$_reset\n"
         done
     )
 }
@@ -400,17 +400,17 @@ _o_wait_for_file_event(){
 _o_wait_for_file_event_bash(){
     (
         _o_assert_calcx "$(( $# > 1 ))" "usage: watchdir <directory> '<bash; commands>'"
+        local _rc=("$_bold$_red" "$_bold$_green")
         local dir="$1"
         shift
         set -m
         #while inotifywait --exclude '/\..+' -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
         while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
-            echo "### inotifywait exec #########################"
+            echo -e "\n$_bold$_white### inotifywait exec - start #######################$_reset\n"
             echo "command: $*"
             sleep 0.1
             _o_execute_bash "$@"
-            echo "### EXIT $?"
-            echo "### inotifywait exec #########################"
+            echo -e "\n$_bold$_white### ${_rc[!$?]}inotifywait exec - end $_bold$_white#########################$_reset\n"
         done
     )
 }
