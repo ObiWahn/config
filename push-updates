@@ -16,11 +16,16 @@ while read source; do
     user="$(stat --printf %G "$target" 2>/dev/null)"
     group="$user"
 
+    on_mac=flase
     if [[ ${_o_os_mac} == "yes" ]]; then
         if [[ $(id -u) == "0" ]]; then
             user="root"
-            group="staff"
+            group="wheel"
         fi
+        on_mac=true
+        echo "ON MACOS ($user)"
+    else
+        echo "ON LINUX ($user)"
     fi
 
     targetdir="${target%/*}"
@@ -33,6 +38,10 @@ while read source; do
         #copy symlinks into dir
         echo "discoverd symlink switch target to dir"
         target="$targetdir"
+    fi
+
+    if $on_mac; then
+        [[ "$target" == /etc/cron.hourly/.placeholder ]] && continue
     fi
 
     echo "copy ./${source} -> ${target} ($user)"
