@@ -390,8 +390,9 @@ _o_wait_for_file_event(){
         while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
             echo -e "\n$_bold$_white### inotifywait exec - start #######################$_reset\n"
             echo "command: $*"
-            sleep 0.1
+            sleep 0.3
             "$@"
+            sleep 0.3
             echo -e "\n$_bold$_white### ${_rc[!$?]}inotifywait exec - end $_bold$_white#########################$_reset\n"
         done
     )
@@ -408,8 +409,9 @@ _o_wait_for_file_event_bash(){
         while inotifywait -e MODIFY -e CLOSE_WRITE -r "${dir}"; do
             echo -e "\n$_bold$_white### inotifywait exec - start #######################$_reset\n"
             echo "command: $*"
-            sleep 0.1
+            sleep 0.3
             _o_execute_bash "$@"
+            sleep 0.3
             echo -e "\n$_bold$_white### ${_rc[!$?]}inotifywait exec - end $_bold$_white#########################$_reset\n"
         done
     )
