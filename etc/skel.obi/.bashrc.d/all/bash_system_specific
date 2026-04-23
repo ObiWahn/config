@@ -9,7 +9,6 @@ _o_os_windows="no"
 
 _o_system_ls=/usr/bin/ls
 _o_system_tmux=/usr/bin/tmux
-_o_system_vim=/usr/bin/vim
 _o_system_gnu_grep=/bin/grep
 _o_system_gnu_readlink=/bin/readlink
 _o_system_mosh=/usr/bin/mosh
@@ -34,7 +33,6 @@ case "$(uname)" in
             _o_system_ls=/bin/ls
         fi
         _o_system_tmux=/opt/homebrew/bin/tmux
-        _o_system_vim=/opt/homebrew/bin/vim
         _o_system_gnu_grep=/opt/homebrew/opt/grep/libexec/gnubin/grep
         _o_system_gnu_readlink=/opt/homebrew/opt/coreutils/libexec/gnubin/readlink
         _o_system_mosh=/opt/homebrew/bin/mosh
@@ -63,7 +61,6 @@ export _o_os_windows
 
 export _o_system_ls
 export _o_system_tmux
-export _o_system_vim
 export _o_system_gnu_grep
 export _o_system_gnu_readlink
 export _o_system_mosh
