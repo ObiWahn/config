@@ -13,24 +13,6 @@ watchdir(){
 export -f watchdir
 ### scripts - end#################################################}}}
 
-### vim ##########################################################{{{
-vim(){
-    export TERM
-    TERM=xterm
-    $_o_system_vim -p "$@"
-}
-
-vimcpp(){
-   local cmd=( 'vim' '-p')
-    while IFS=' ' read -r first _; do
-        IFS=':' read -r -u 3 name line _  3<<<"$first"
-        cmd+=("$name" "+$line")
-    done <<< "$@"
-    echo "${cmd[@]}"
-    "${cmd[@]}"
-}
-### vim - end ####################################################}}}
-
 ### screen / power ###############################################{{{
 screen_off(){
     sleep 1; xset dpms force off;
