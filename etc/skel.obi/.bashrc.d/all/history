@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copyright - 2010 - Jan Christoph Uhde <Jan@UhdeJC.com>
 ## History Commands
-HISTFILESIZE=50000          # increase history file size (default is 500)
+HISTFILESIZE=1000          # increase history file size (default is 500)
 
 shopt -s cmdhist
 export HISTFILE=~/.cache/.bash_history # replace with /dev/null
