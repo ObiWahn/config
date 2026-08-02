@@ -1,33 +1,14 @@
 #!/bin/bash
 
+. /etc/skel/setup-scripts/create-ssh-keys || exit 1
 cd ~/.ssh || exit 1
 
 name="$USER@$HOSTNAME"
+link=true
 
-create_key(){
-    local name="$USER@$HOSTNAME"
-    local ktype="$1"
-    local bits="$2"
-    local rounds="$3"
+outfile="id_ed25519_${name}"
+create_ssh_key_ed25519 $name $outfile $link
 
-    local cmd=(
-        'ssh-keygen'
-        '-t' "$ktype"
-        '-b' "$bits"
-        '-C' "$ktype-$name"
-        '-f' "id_${ktype}_${name}"
-    )
+#outfile="id_rsa_${name}"
+#create_ssh_key_rsa $name $outfile $link
 
-    if [[ -n "$rounds" ]]; then
-        cmd+=( '-a' "$rounds" )
-    fi
-
-    echo "${cmd[@]}"
-    "${cmd[@]}"
-
-    ln -s "id_${ktype}_${name}"     "id_${ktype}"
-    ln -s "id_${ktype}_${name}.pub" "id_${ktype}.pub"
-}
-
-#create_key rsa     4096
-create_key ed25519 4096 $((1024*1024))

@@ -1,0 +1,49 @@
+#!/bin/bin/env bash
+
+create_ssh_key(){
+    local name="$1"
+    local file="$2"
+    local ktype="$3"
+    local bits="$4"
+    local rounds="$5"
+    local create_links=${6:-false}
+
+    local cmd=(
+        'ssh-keygen'
+        '-t' "$ktype"
+        '-b' "$bits"
+        '-C' "$ktype-$name"
+        '-f' "$file"
+    )
+
+    if [[ -n "$rounds" ]]; then
+        cmd+=( '-a' "$rounds" )
+    fi
+
+    echo "${cmd[@]}"
+    "${cmd[@]}"
+
+    if $create_links; then
+    	ln -s "$file"     "id_${ktype}"
+    	ln -s "$file.pub" "id_${ktype}.pub"
+    fi
+}
+
+create_ssh_key_ed25519(){
+    # 1 - name
+    # 2 - outfile
+    create_ssh_key $1 $2 ed25519 4096 $((1024*1024)) ${3:-false}
+} 
+
+create_ssh_key_rsa(){
+    # 1 - name
+    # 2 - outfile
+    create_ssh_key $1 $2 rsa 4096 $((1024*1024)) ${3:-false}
+} 
+
+create_ssh_key_ed25519_quick(){
+    # 1 - name 
+    # 1 - outfile
+    create_ssh_key $1 $1 ed25519 4096 $((1024*1024)) false
+} 
+
